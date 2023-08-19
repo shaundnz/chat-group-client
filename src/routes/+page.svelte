@@ -1,8 +1,11 @@
 <script lang="ts">
+	import type { PageData } from './$types';
 	import { Chat, Sidebar } from '$lib';
 	import { createChannelsContext } from '$lib/context/channelsContext';
 
-	createChannelsContext();
+	export let data: PageData;
+
+	createChannelsContext(data.channels);
 </script>
 
 <Sidebar>

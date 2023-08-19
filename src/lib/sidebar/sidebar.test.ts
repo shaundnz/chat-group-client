@@ -8,6 +8,7 @@ import { writable } from 'svelte/store';
 
 const mockChannelsContextStore = writable<ChannelsContext>({
 	selectedChannel: null,
+	channelsLoading: false,
 	channels: [
 		{
 			id: '1',

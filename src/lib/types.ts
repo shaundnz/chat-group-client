@@ -4,3 +4,8 @@ export interface Channel {
 	description: string;
 	members: string[];
 }
+
+export interface CreateChannelDto {
+	title: string;
+	description: string;
+}
