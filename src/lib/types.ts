@@ -1,5 +1,6 @@
 export interface Channel {
-	channelName: string;
+	id: string;
+	title: string;
 	description: string;
 	members: string[];
 }

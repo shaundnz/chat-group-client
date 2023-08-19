@@ -7,7 +7,8 @@ import SelectedChannel from './SelectedChannel.svelte';
 describe('SelectedChannel.svelte', () => {
 	it('should render', () => {
 		const selectedChannel = {
-			channelName: 'Welcome',
+			id: '1',
+			title: 'Welcome',
 			description: 'Lorem ipsum info here',
 			members: ['User 1', 'User 2']
 		};
@@ -19,7 +20,7 @@ describe('SelectedChannel.svelte', () => {
 
 		const { getByText, getAllByTestId } = render(SelectedChannel, props);
 
-		expect(getByText(selectedChannel.channelName)).toBeInTheDocument();
+		expect(getByText(selectedChannel.title)).toBeInTheDocument();
 		expect(getByText(selectedChannel.description)).toBeInTheDocument();
 		expect(getAllByTestId('member')).toHaveLength(selectedChannel.members.length);
 		selectedChannel.members.forEach((member) => {
@@ -31,7 +32,8 @@ describe('SelectedChannel.svelte', () => {
 		userEvent.setup();
 		const onBackButtonClick = vi.fn();
 		const selectedChannel = {
-			channelName: 'Welcome',
+			id: '1',
+			title: 'Welcome',
 			description: 'Lorem ipsum info here',
 			members: ['User 1', 'User 2']
 		};

@@ -9,12 +9,14 @@ describe('AllChannels.svelte', () => {
 		const props = {
 			channels: [
 				{
-					channelName: 'Welcome',
+					id: '1',
+					title: 'Welcome',
 					description: 'Lorem ipsum info here',
 					members: ['User 1', 'User 2']
 				},
 				{
-					channelName: 'Front-End Developers',
+					id: '2',
+					title: 'Front-End Developers',
 					description: 'Lorem ipsum Lorem ipsum',
 					members: ['User 3', 'User 4']
 				}
@@ -28,7 +30,7 @@ describe('AllChannels.svelte', () => {
 		expect(getByText('Channels')).toBeInTheDocument();
 		expect(getByPlaceholderText('Search')).toBeInTheDocument();
 		props.channels.forEach((channel) => {
-			expect(getByText(channel.channelName)).toBeInTheDocument();
+			expect(getByText(channel.title)).toBeInTheDocument();
 		});
 		expect(getAllByTestId('channel-button')).toHaveLength(props.channels.length);
 	});
@@ -52,7 +54,8 @@ describe('AllChannels.svelte', () => {
 		userEvent.setup();
 		const onChannelClick = vi.fn();
 		const channel = {
-			channelName: 'Welcome',
+			id: '1',
+			title: 'Welcome',
 			description: 'Lorem ipsum info here',
 			members: ['User 1', 'User 2']
 		};

@@ -8,7 +8,7 @@
 	export let onBackButtonClick: () => void;
 </script>
 
-<SidebarHeader headerText={selectedChannel.channelName} onIconClick={onBackButtonClick}>
+<SidebarHeader headerText={selectedChannel.title} onIconClick={onBackButtonClick}>
 	<span slot="icon">
 		<ArrowLeftIcon />
 		<span class="sr-only">Back</span>

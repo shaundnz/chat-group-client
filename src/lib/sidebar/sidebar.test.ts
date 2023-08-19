@@ -10,12 +10,14 @@ const mockChannelsContextStore = writable<ChannelsContext>({
 	selectedChannel: null,
 	channels: [
 		{
-			channelName: 'Welcome',
+			id: '1',
+			title: 'Welcome',
 			description: 'The welcome channel',
 			members: ['User One', 'User Two']
 		},
 		{
-			channelName: 'Front-End Developers',
+			id: '2',
+			title: 'Front-End Developers',
 			description: 'A channel to discuss front end development',
 			members: ['User One', 'User Two', 'User Three']
 		}

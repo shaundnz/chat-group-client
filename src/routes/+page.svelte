@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { Chat, Sidebar } from '$lib';
-	import { createChannelsContext, getChannelsContext } from '$lib/context/channelsContext';
-	import type { Channel } from '$lib/types';
+	import { createChannelsContext } from '$lib/context/channelsContext';
 
 	createChannelsContext();
 </script>

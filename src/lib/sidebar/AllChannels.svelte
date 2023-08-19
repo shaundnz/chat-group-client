@@ -20,6 +20,6 @@
 </div>
 <div class="flex flex-col flex-1 space-y-4 overflow-y-scroll px-4">
 	{#each channels as channel}
-		<Channel channelName={channel.channelName} on:click={() => onChannelClick(channel)} />
+		<Channel channelName={channel.title} on:click={() => onChannelClick(channel)} />
 	{/each}
 </div>
