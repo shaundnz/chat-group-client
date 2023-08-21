@@ -7,7 +7,12 @@ import Sidebar from './Sidebar.svelte';
 import { writable } from 'svelte/store';
 
 const mockChannelsContextStore = writable<ChannelsContext>({
-	selectedChannel: null,
+	selectedChannel: {
+		id: '1',
+		title: 'Welcome',
+		description: 'The welcome channel',
+		members: ['User One', 'User Two']
+	},
 	channelsLoading: false,
 	channels: [
 		{

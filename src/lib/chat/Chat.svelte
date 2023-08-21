@@ -3,8 +3,10 @@
 	import Message from './Message.svelte';
 	import TextInput from './TextInput.svelte';
 	import { io } from 'socket.io-client';
+	import { getChannelsContext } from '$lib/context';
 
-	export let channelName: string;
+	const channelsContext = getChannelsContext();
+	$: ({ selectedChannel } = $channelsContext);
 	let messages: string[] = [];
 
 	const socket = io('http://localhost:3000');
@@ -20,10 +22,10 @@
 </script>
 
 <div class="flex flex-col h-screen overflow-hidden">
-	<Banner {channelName} />
+	<Banner channelName={selectedChannel.title} />
 	<main class="flex flex-1 flex-col space-y-4 overflow-y-scroll px-4 [&>*:last-child]:pb-4">
 		{#each messages as message}
-			<Message userName="Shaunna Firth" {message} time="today at 1:29 PM" />
+			<Message userName="Anonymous User" {message} time="today at 1:29 PM" />
 		{/each}
 	</main>
 	<div class="px-4 pb-4">

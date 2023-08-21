@@ -1,23 +1,56 @@
 <script lang="ts">
+	import { getChannelsContext } from '$lib/context';
+
+	let form: HTMLFormElement;
+	let title = '';
+	let description = '';
+
+	const channelsContext = getChannelsContext();
+
+	const handleSubmit = async (e: SubmitEvent) => {
+		try {
+			await channelsContext.createChannelAndUpdateChannels({ title, description });
+			window.create_channel_modal.close();
+		} catch {}
+	};
+
+	const handleTextAreaKeyPress = (e: KeyboardEvent) => {
+		if (e.key === 'Enter' && !e.shiftKey) {
+			e.preventDefault();
+			form.requestSubmit();
+		}
+	};
 </script>
 
 <dialog id="create_channel_modal" class="modal">
-	<form method="dialog" class="modal-box bg-base-200">
-		<button class="btn btn-sm btn-square btn-ghost absolute right-2 top-2">✕</button>
-		<div class="flex flex-col space-y-4">
-			<h3 class="font-semibold text-xl">New Channel</h3>
-			<input type="text" placeholder="Channel name" class="input w-full bg-neutral" required />
-			<textarea
-				class="textarea resize-none flex-1 focus:outline-none bg-neutral w-full"
-				placeholder="Channel description"
-				required
-			/>
-		</div>
-		<div class="modal-action">
-			<!-- if there is a button in form, it will close the modal -->
-			<button class="btn btn-primary">Save</button>
-		</div>
-	</form>
+	<div class="modal-box bg-base-200">
+		<form method="dialog">
+			<button class="btn btn-sm btn-square btn-ghost absolute right-2 top-2">✕</button>
+		</form>
+		<form on:submit|preventDefault={handleSubmit} bind:this={form}>
+			<div class="flex flex-col space-y-4">
+				<h3 class="font-semibold text-xl">New Channel</h3>
+				<input
+					type="text"
+					placeholder="Channel name"
+					class="input w-full bg-neutral"
+					required
+					bind:value={title}
+				/>
+				<textarea
+					class="textarea resize-none flex-1 focus:outline-none bg-neutral w-full"
+					placeholder="Channel description"
+					required
+					bind:value={description}
+					on:keypress={handleTextAreaKeyPress}
+				/>
+			</div>
+			<div class="modal-action">
+				<!-- if there is a button in form, it will close the modal -->
+				<button class="btn btn-primary">Save</button>
+			</div>
+		</form>
+	</div>
 	<form method="dialog" class="modal-backdrop">
 		<button>Close</button>
 	</form>
