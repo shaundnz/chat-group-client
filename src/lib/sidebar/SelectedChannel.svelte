@@ -24,7 +24,7 @@
 <div class="text-xl font-semibold px-4 pt-4 pb-2">
 	<h2>MEMBERS</h2>
 </div>
-<div class="flex flex-col flex-1 space-y-4 overflow-y-scroll px-4">
+<div class="flex flex-col flex-1 space-y-4 overflow-y-auto px-4">
 	{#each selectedChannel.members as member}
 		<Member name={member} />
 	{/each}
