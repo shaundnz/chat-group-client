@@ -15,10 +15,8 @@
 	</span>
 </SidebarHeader>
 <div class="px-4">
-	<div class="space-y-1">
-		<p>
-			{selectedChannel.description}
-		</p>
+	<div class="space-y-1" data-testid="channel-description">
+		{selectedChannel.description}
 	</div>
 </div>
 <div class="text-xl font-semibold px-4 pt-4 pb-2">

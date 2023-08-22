@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render } from '@testing-library/svelte';
+import { render, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import type { ChannelsContext } from '$lib/context';
@@ -40,9 +40,9 @@ describe('Sidebar.svelte', () => {
 	beforeEach;
 
 	it('should render all channels initially', () => {
-		const { getByText, queryByText, getAllByTestId } = render(Sidebar);
+		const { getByText, queryByText, getByTestId } = render(Sidebar);
 		expect(getByText('Channels')).toBeInTheDocument();
-		expect(getAllByTestId('channel-button').length).toBe(2);
+		expect(within(getByTestId('all-channels-list')).getAllByRole('listitem')).toHaveLength(2);
 		expect(queryByText(/The welcome channel/)).not.toBeInTheDocument();
 	});
 

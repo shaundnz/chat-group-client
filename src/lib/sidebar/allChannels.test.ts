@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render } from '@testing-library/svelte';
+import { render, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import AllChannels from './AllChannels.svelte';
@@ -25,14 +25,16 @@ describe('AllChannels.svelte', () => {
 			onCreateChannelButtonClick: vi.fn()
 		};
 
-		const { getByText, getByPlaceholderText, getAllByTestId } = render(AllChannels, props);
+		const { getByText, getByPlaceholderText, getByTestId } = render(AllChannels, props);
 
 		expect(getByText('Channels')).toBeInTheDocument();
 		expect(getByPlaceholderText('Search')).toBeInTheDocument();
 		props.channels.forEach((channel) => {
 			expect(getByText(channel.title)).toBeInTheDocument();
 		});
-		expect(getAllByTestId('channel-button')).toHaveLength(props.channels.length);
+		expect(within(getByTestId('all-channels-list')).getAllByRole('listitem')).toHaveLength(
+			props.channels.length
+		);
 	});
 
 	it('should fire the open modal event', async () => {

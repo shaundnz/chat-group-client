@@ -10,12 +10,16 @@
 
 	let currentChannelView = false;
 
-	const handleBackButtonClick = () => {
+	const onBackButtonClick = () => {
 		currentChannelView = false;
 	};
 
-	const handleChannelClick = (channel: Channel) => {
+	const onChannelClick = (channel: Channel) => {
 		$channelsContext.selectedChannel = channel;
+		currentChannelView = true;
+	};
+
+	const handleNewChannelCreated = () => {
 		currentChannelView = true;
 	};
 </script>
@@ -31,14 +35,11 @@
 		<label for="sidebar" class="drawer-overlay" />
 		<div class="flex flex-1 flex-col h-screen bg-base-200 w-80 overflow-hidden">
 			{#if currentChannelView}
-				<SelectedChannel
-					selectedChannel={$channelsContext.selectedChannel}
-					onBackButtonClick={handleBackButtonClick}
-				/>
+				<SelectedChannel selectedChannel={$channelsContext.selectedChannel} {onBackButtonClick} />
 			{:else}
 				<AllChannels
 					onCreateChannelButtonClick={() => window.create_channel_modal.showModal()}
-					onChannelClick={handleChannelClick}
+					{onChannelClick}
 					channels={$channelsContext.channels}
 				/>
 			{/if}
@@ -46,4 +47,4 @@
 		</div>
 	</div>
 </div>
-<CreateChannelModal />
+<CreateChannelModal on:newChannelCreated={handleNewChannelCreated} />

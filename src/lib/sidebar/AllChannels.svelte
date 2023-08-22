@@ -18,8 +18,10 @@
 <div class="px-4 pb-4">
 	<input type="text" placeholder="Search" class="input w-full bg-neutral" />
 </div>
-<div class="flex flex-col flex-1 space-y-4 overflow-y-auto px-4">
+<ul class="flex flex-col flex-1 space-y-4 overflow-y-auto px-4" data-testid="all-channels-list">
 	{#each channels as channel}
-		<Channel channelName={channel.title} on:click={() => onChannelClick(channel)} />
+		<li>
+			<Channel channelName={channel.title} on:click={() => onChannelClick(channel)} />
+		</li>
 	{/each}
-</div>
+</ul>

@@ -40,7 +40,7 @@ export const createChannelsContext = (defaultChannel: Channel, channels: Channel
 
 	const createChannelAndUpdateChannels = async (createChannelDto: CreateChannelDto) => {
 		setLoadingState(true);
-		await fetch('http://localhost:3000/channels', {
+		const res = await fetch('http://localhost:3000/channels', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -48,7 +48,19 @@ export const createChannelsContext = (defaultChannel: Channel, channels: Channel
 			body: JSON.stringify(createChannelDto)
 		});
 
+		const newChannelJson: Channel = await res.json();
+
 		await setAllChannels();
+		update((state) => {
+			const newChannel = state.channels.find((channel) => channel.id === newChannelJson.id);
+			// TODO: Should show some error state here
+			if (!newChannel) {
+				state.selectedChannel = newChannelJson;
+				return state;
+			}
+			state.selectedChannel = newChannel;
+			return state;
+		});
 
 		setLoadingState(false);
 	};

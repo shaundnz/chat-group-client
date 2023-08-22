@@ -10,11 +10,7 @@
 	};
 </script>
 
-<button
-	class="flex space-x-4 items-center hover:bg-neutral-focus rounded"
-	on:click
-	data-testid="channel-button"
->
+<button class="flex space-x-4 items-center hover:bg-neutral-focus rounded w-full" on:click>
 	<div class="avatar placeholder">
 		<div class="w-12 h-12 rounded bg-neutral-focus">
 			<span class="text-lg font-semibold" aria-hidden="true">{getChannelAcronym()}</span>
