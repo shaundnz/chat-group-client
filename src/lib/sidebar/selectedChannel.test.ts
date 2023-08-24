@@ -10,7 +10,8 @@ describe('SelectedChannel.svelte', () => {
 			id: '1',
 			title: 'Welcome',
 			description: 'Lorem ipsum info here',
-			members: ['User 1', 'User 2']
+			members: ['User 1', 'User 2'],
+			messages: []
 		};
 
 		const props = {
@@ -35,7 +36,8 @@ describe('SelectedChannel.svelte', () => {
 			id: '1',
 			title: 'Welcome',
 			description: 'Lorem ipsum info here',
-			members: ['User 1', 'User 2']
+			members: ['User 1', 'User 2'],
+			messages: []
 		};
 
 		const props = {

@@ -5,7 +5,7 @@
 
 	export let data: PageData;
 
-	createChannelsContext(data.defaultChannel, data.channels);
+	createChannelsContext(data.defaultChannel.id, data.channels);
 </script>
 
 <Sidebar>

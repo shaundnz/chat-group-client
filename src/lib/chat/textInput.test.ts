@@ -6,7 +6,7 @@ import TextInput from './TextInput.svelte';
 
 describe('TextInput.svelte', () => {
 	it('should render', () => {
-		const { getByPlaceholderText } = render(TextInput);
+		const { getByPlaceholderText } = render(TextInput, { onSendClick: vi.fn() });
 		expect(getByPlaceholderText('Type a message here')).toBeInTheDocument();
 	});
 

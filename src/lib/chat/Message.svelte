@@ -4,7 +4,7 @@
 	export let time: string;
 </script>
 
-<div class="flex space-x-4">
+<div class="flex space-x-4" data-testid="message">
 	<div class="avatar">
 		<div class="w-12 h-12 rounded">
 			<img src="/images/babyyoda.jpg" alt="avatar" />

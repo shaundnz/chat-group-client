@@ -2,37 +2,35 @@ import '@testing-library/jest-dom';
 import { render, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
-import type { ChannelsContext } from '$lib/context';
 import Sidebar from './Sidebar.svelte';
-import { writable } from 'svelte/store';
+import { setupMockChannelsContext } from '../../test/utils';
 
-const mockChannelsContextStore = writable<ChannelsContext>({
-	selectedChannel: {
-		id: '1',
-		title: 'Welcome',
-		description: 'The welcome channel',
-		members: ['User One', 'User Two']
-	},
+const initialState = {
+	selectedChannelId: '2',
 	channelsLoading: false,
 	channels: [
 		{
 			id: '1',
 			title: 'Welcome',
 			description: 'The welcome channel',
-			members: ['User One', 'User Two']
+			members: ['User One', 'User Two'],
+			messages: []
 		},
 		{
 			id: '2',
 			title: 'Front-End Developers',
 			description: 'A channel to discuss front end development',
-			members: ['User One', 'User Two', 'User Three']
+			members: ['User One', 'User Two', 'User Three'],
+			messages: []
 		}
 	]
-});
+};
+
+const derivedChannelStore = setupMockChannelsContext(initialState);
 
 vi.mock('$lib/context', () => {
 	return {
-		getChannelsContext: () => mockChannelsContextStore
+		getChannelsContext: () => derivedChannelStore
 	};
 });
 

@@ -12,13 +12,15 @@ describe('AllChannels.svelte', () => {
 					id: '1',
 					title: 'Welcome',
 					description: 'Lorem ipsum info here',
-					members: ['User 1', 'User 2']
+					members: ['User 1', 'User 2'],
+					messages: []
 				},
 				{
 					id: '2',
 					title: 'Front-End Developers',
 					description: 'Lorem ipsum Lorem ipsum',
-					members: ['User 3', 'User 4']
+					members: ['User 3', 'User 4'],
+					messages: []
 				}
 			],
 			onChannelClick: vi.fn(),
@@ -59,7 +61,8 @@ describe('AllChannels.svelte', () => {
 			id: '1',
 			title: 'Welcome',
 			description: 'Lorem ipsum info here',
-			members: ['User 1', 'User 2']
+			members: ['User 1', 'User 2'],
+			messages: []
 		};
 		const props = {
 			channels: [channel],

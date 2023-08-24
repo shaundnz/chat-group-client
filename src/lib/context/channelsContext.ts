@@ -1,25 +1,75 @@
-import { writable, type Writable } from 'svelte/store';
+import { derived, writable, type Readable, type Writable } from 'svelte/store';
 import { getContext, setContext } from 'svelte';
-import type { Channel, CreateChannelDto } from '$lib/types';
+import type { Channel, ChannelDto, CreateChannelDto } from '$lib/types';
+import { io } from 'socket.io-client';
 
-export interface ChannelsContext {
-	selectedChannel: Channel;
+export interface ChannelsStore {
+	selectedChannelId: string;
 	channelsLoading: boolean;
 	channels: Channel[];
 }
 
-export interface ChannelsContextFunctions {
-	createChannelAndUpdateChannels: (createChannelDto: CreateChannelDto) => Promise<void>;
+export interface DerivedChannelsStore extends ChannelsStore {
+	selectedChannel: Channel;
 }
 
-export const createChannelsContext = (defaultChannel: Channel, channels: Channel[]) => {
+export interface ChannelsContextFunctions {
+	createChannelAndUpdateChannels: (createChannelDto: CreateChannelDto) => Promise<void>;
+	sendMessage: (channelId: string, message: string) => void;
+	setSelectedChannelId: (selectedChannelId: string) => void;
+}
+
+export const createChannelsContext = (defaultChannelId: string, channels: Channel[]) => {
 	const initialState = {
-		selectedChannel: defaultChannel,
+		selectedChannelId: defaultChannelId,
 		channelsLoading: false,
 		channels: channels
 	};
 
-	const { subscribe, update, set } = writable<ChannelsContext>(initialState);
+	const channelsStore = writable<ChannelsStore>(initialState);
+	const { update } = channelsStore;
+
+	const derivedChannelStore = derived<Writable<ChannelsStore>, DerivedChannelsStore>(
+		channelsStore,
+		(state) => {
+			const selectedChannel = state.channels.find(
+				(channel) => channel.id === state.selectedChannelId
+			);
+			if (!selectedChannel) throw Error;
+			return {
+				...state,
+				selectedChannel
+			};
+		}
+	);
+
+	// Connect to the server, user joins all channel rooms
+	const socket = io('http://localhost:3000');
+	const sendMessage = (channelId: string, content: string) => {
+		socket.emit('message:send', { channelId, content });
+		update((state) => {
+			const selectedChannel = state.channels.find((channel) => channel.id === channelId);
+			if (!selectedChannel) {
+				throw new Error('Could not find channel');
+			}
+			selectedChannel.messages.push(content);
+			return state;
+		});
+	};
+
+	socket.on(
+		'message:received',
+		({ channelId, message }: { channelId: string; message: string }) => {
+			update((state) => {
+				const channelToUpdate = state.channels.find((channel) => channel.id === channelId);
+				if (!channelToUpdate) {
+					throw new Error('Could not find channel');
+				}
+				channelToUpdate.messages.push(message);
+				return state;
+			});
+		}
+	);
 
 	const setLoadingState = (loading: boolean) => {
 		update((state) => {
@@ -31,9 +81,9 @@ export const createChannelsContext = (defaultChannel: Channel, channels: Channel
 	const setAllChannels = async () => {
 		const allChannelsRes = await fetch('http://localhost:3000/channels');
 
-		const allChannelsJson: Channel[] = await allChannelsRes.json();
+		const allChannelsJson: ChannelDto[] = await allChannelsRes.json();
 		update((state) => {
-			state.channels = allChannelsJson.map((c) => ({ ...c, members: [] }));
+			state.channels = allChannelsJson.map((c) => ({ ...c, members: [], messages: [] }));
 			return state;
 		});
 	};
@@ -48,31 +98,37 @@ export const createChannelsContext = (defaultChannel: Channel, channels: Channel
 			body: JSON.stringify(createChannelDto)
 		});
 
-		const newChannelJson: Channel = await res.json();
+		const newChannelJson: ChannelDto = await res.json();
 
 		await setAllChannels();
 		update((state) => {
 			const newChannel = state.channels.find((channel) => channel.id === newChannelJson.id);
 			// TODO: Should show some error state here
 			if (!newChannel) {
-				state.selectedChannel = newChannelJson;
-				return state;
+				throw new Error('Could not find channel');
 			}
-			state.selectedChannel = newChannel;
+			state.selectedChannelId = newChannel.id;
 			return state;
 		});
 
 		setLoadingState(false);
 	};
 
+	const setSelectedChannelId = (selectedChannelId: string) => {
+		update((state) => {
+			state.selectedChannelId = selectedChannelId;
+			return state;
+		});
+	};
+
 	setContext('channelsContext', {
-		subscribe,
-		update,
-		set,
-		createChannelAndUpdateChannels
+		...derivedChannelStore,
+		createChannelAndUpdateChannels,
+		sendMessage,
+		setSelectedChannelId
 	});
 };
 
 export const getChannelsContext = () => {
-	return getContext<Writable<ChannelsContext> & ChannelsContextFunctions>('channelsContext');
+	return getContext<Readable<DerivedChannelsStore> & ChannelsContextFunctions>('channelsContext');
 };

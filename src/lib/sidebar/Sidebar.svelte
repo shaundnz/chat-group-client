@@ -7,6 +7,7 @@
 	import CreateChannelModal from './CreateChannelModal.svelte';
 
 	const channelsContext = getChannelsContext();
+	$: ({ selectedChannel, channels } = $channelsContext);
 
 	let currentChannelView = false;
 
@@ -15,7 +16,7 @@
 	};
 
 	const onChannelClick = (channel: Channel) => {
-		$channelsContext.selectedChannel = channel;
+		channelsContext.setSelectedChannelId(channel.id);
 		currentChannelView = true;
 	};
 
@@ -35,12 +36,12 @@
 		<label for="sidebar" class="drawer-overlay" />
 		<div class="flex flex-1 flex-col h-screen bg-base-200 w-80 overflow-hidden">
 			{#if currentChannelView}
-				<SelectedChannel selectedChannel={$channelsContext.selectedChannel} {onBackButtonClick} />
+				<SelectedChannel {selectedChannel} {onBackButtonClick} />
 			{:else}
 				<AllChannels
 					onCreateChannelButtonClick={() => window.create_channel_modal.showModal()}
 					{onChannelClick}
-					channels={$channelsContext.channels}
+					{channels}
 				/>
 			{/if}
 			<div class="p-4 bg-base-300"><Member name="Anonymous User" /></div>
