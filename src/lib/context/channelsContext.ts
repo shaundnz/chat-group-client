@@ -1,6 +1,7 @@
 import { derived, writable, type Readable, type Writable } from 'svelte/store';
 import { getContext, setContext } from 'svelte';
-import type { Channel, ChannelDto, CreateChannelDto } from '$lib/types';
+import type { Channel } from '$lib/types';
+import type { CreateChannelDto, ChannelDto } from '$lib/contracts';
 import { io } from 'socket.io-client';
 
 export interface ChannelsStore {

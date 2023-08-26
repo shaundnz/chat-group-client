@@ -1,7 +1,10 @@
-import type { ChannelDto } from '$lib/types';
+import type { ChannelDto } from '$lib/contracts';
+import type { Channel } from '$lib/types';
 import type { PageLoad } from './$types';
 
-export const load: PageLoad = async ({ fetch }) => {
+export const load: PageLoad<{ channels: Channel[]; defaultChannel: Channel }> = async ({
+	fetch
+}) => {
 	const allChannelsRes = await fetch('http://localhost:3000/channels');
 	const defaultChannelRes = await fetch('http://localhost:3000/channels/default');
 	const allChannelsJson: ChannelDto[] = await allChannelsRes.json();
