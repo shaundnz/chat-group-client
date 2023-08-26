@@ -1,7 +1,7 @@
 import { derived, writable, type Readable, type Writable } from 'svelte/store';
 import { getContext, setContext } from 'svelte';
 import type { Channel } from '$lib/types';
-import type { CreateChannelDto, ChannelDto } from '$lib/contracts';
+import type { CreateChannelDto, ChannelDto, ReceivedMessageEventResponseDto } from '$lib/contracts';
 import { io } from 'socket.io-client';
 
 export interface ChannelsStore {
@@ -36,7 +36,7 @@ export const createChannelsContext = (defaultChannelId: string, channels: Channe
 			const selectedChannel = state.channels.find(
 				(channel) => channel.id === state.selectedChannelId
 			);
-			if (!selectedChannel) throw Error;
+			if (!selectedChannel) throw Error('Could not find channel');
 			return {
 				...state,
 				selectedChannel
@@ -53,20 +53,20 @@ export const createChannelsContext = (defaultChannelId: string, channels: Channe
 			if (!selectedChannel) {
 				throw new Error('Could not find channel');
 			}
-			selectedChannel.messages.push(content);
+			selectedChannel.messages.push({ createdAt: new Date(), content: content });
 			return state;
 		});
 	};
 
 	socket.on(
 		'message:received',
-		({ channelId, message }: { channelId: string; message: string }) => {
+		({ channelId, createdAt, content }: ReceivedMessageEventResponseDto) => {
 			update((state) => {
 				const channelToUpdate = state.channels.find((channel) => channel.id === channelId);
 				if (!channelToUpdate) {
 					throw new Error('Could not find channel');
 				}
-				channelToUpdate.messages.push(message);
+				channelToUpdate.messages.push({ createdAt: new Date(createdAt), content });
 				return state;
 			});
 		}
