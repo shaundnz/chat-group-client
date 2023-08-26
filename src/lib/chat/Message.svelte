@@ -1,7 +1,7 @@
 <script lang="ts">
-	export let message: string;
+	import type { Message as MessageType } from '$lib/types';
+	export let message: MessageType;
 	export let userName: string;
-	export let time: string;
 </script>
 
 <div class="flex space-x-4" data-testid="message">
@@ -16,9 +16,9 @@
 				{userName}
 			</div>
 			<div class="font-light text-sm">
-				{time}
+				{message.createdAt}
 			</div>
 		</div>
-		<div>{message}</div>
+		<div>{message.content}</div>
 	</div>
 </div>
