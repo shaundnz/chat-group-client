@@ -3,8 +3,9 @@ import { render } from '@testing-library/svelte';
 import Chat from './Chat.svelte';
 import { vi } from 'vitest';
 import { setupMockChannelsContext } from '../../test/utils';
+import type { ChannelsStore } from '$lib/context';
 
-const initialState = {
+const initialState: ChannelsStore = {
 	selectedChannelId: '2',
 	channelsLoading: false,
 	channels: [
@@ -13,14 +14,17 @@ const initialState = {
 			title: 'Welcome',
 			description: 'The welcome channel',
 			members: ['User One', 'User Two'],
-			messages: ['message 1']
+			messages: [{ content: 'message 1', createdAt: new Date() }]
 		},
 		{
 			id: '2',
 			title: 'Front-End Developers',
 			description: 'A channel to discuss front end development',
 			members: ['User One', 'User Two', 'User Three'],
-			messages: ['message 2', 'message 3']
+			messages: [
+				{ content: 'message 2', createdAt: new Date() },
+				{ content: 'message 3', createdAt: new Date() }
+			]
 		}
 	]
 };
