@@ -51,7 +51,8 @@ export const createChannelsContext = (defaultChannelId: string, channels: Channe
 		update((state) => {
 			const selectedChannel = state.channels.find((channel) => channel.id === channelId);
 			if (!selectedChannel) {
-				throw new Error('Could not find channel');
+				// throw new Error('Could not find channel');
+				return state;
 			}
 			selectedChannel.messages.push({ createdAt: new Date(), content: content });
 			return state;
@@ -64,7 +65,8 @@ export const createChannelsContext = (defaultChannelId: string, channels: Channe
 			update((state) => {
 				const channelToUpdate = state.channels.find((channel) => channel.id === channelId);
 				if (!channelToUpdate) {
-					throw new Error('Could not find channel');
+					// throw new Error('Could not find channel');
+					return state;
 				}
 				channelToUpdate.messages.push({ createdAt: new Date(createdAt), content });
 				return state;
