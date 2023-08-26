@@ -1,5 +1,4 @@
-export interface SendMessageEventDto {
+export interface SendMessageEventRequestDto {
 	channelId: string;
-	createdAt: string;
 	content: string;
 }

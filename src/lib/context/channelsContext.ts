@@ -1,7 +1,12 @@
 import { derived, writable, type Readable, type Writable } from 'svelte/store';
 import { getContext, setContext } from 'svelte';
-import type { Channel } from '$lib/types';
-import type { CreateChannelDto, ChannelDto, ReceivedMessageEventResponseDto } from '$lib/contracts';
+import type { Channel, Message } from '$lib/types';
+import type {
+	CreateChannelDto,
+	ChannelDto,
+	ReceivedMessageEventResponseDto,
+	SendMessageEventRequestDto
+} from '$lib/contracts';
 import { io } from 'socket.io-client';
 
 export interface ChannelsStore {
@@ -16,7 +21,7 @@ export interface DerivedChannelsStore extends ChannelsStore {
 
 export interface ChannelsContextFunctions {
 	createChannelAndUpdateChannels: (createChannelDto: CreateChannelDto) => Promise<void>;
-	sendMessage: (channelId: string, message: string) => void;
+	sendMessage: (sendMessageEventRequestDto: SendMessageEventRequestDto) => void;
 	setSelectedChannelId: (selectedChannelId: string) => void;
 }
 
@@ -46,15 +51,23 @@ export const createChannelsContext = (defaultChannelId: string, channels: Channe
 
 	// Connect to the server, user joins all channel rooms
 	const socket = io('http://localhost:3000');
-	const sendMessage = (channelId: string, content: string) => {
-		socket.emit('message:send', { channelId, content });
+	const sendMessage = (sendMessageEventRequestDto: SendMessageEventRequestDto) => {
+		const newMessage: Message = {
+			createdAt: new Date(),
+			content: sendMessageEventRequestDto.content
+		};
+
+		socket.emit('message:send', sendMessageEventRequestDto);
+
 		update((state) => {
-			const selectedChannel = state.channels.find((channel) => channel.id === channelId);
+			const selectedChannel = state.channels.find(
+				(channel) => channel.id === sendMessageEventRequestDto.channelId
+			);
 			if (!selectedChannel) {
 				// throw new Error('Could not find channel');
 				return state;
 			}
-			selectedChannel.messages.push({ createdAt: new Date(), content: content });
+			selectedChannel.messages.push(newMessage);
 			return state;
 		});
 	};
@@ -124,7 +137,7 @@ export const createChannelsContext = (defaultChannelId: string, channels: Channe
 		});
 	};
 
-	setContext('channelsContext', {
+	setContext<Readable<DerivedChannelsStore> & ChannelsContextFunctions>('channelsContext', {
 		...derivedChannelStore,
 		createChannelAndUpdateChannels,
 		sendMessage,
