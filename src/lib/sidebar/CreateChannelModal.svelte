@@ -12,7 +12,7 @@
 
 	const handleSubmit = async (e: SubmitEvent) => {
 		try {
-			await channelsContext.createChannelAndUpdateChannels({ title, description });
+			await channelsContext.helper.createNewChannelAndSetActive({ title, description });
 			dispatch('newChannelCreated');
 			window.create_channel_modal.close();
 		} catch {}

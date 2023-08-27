@@ -2,8 +2,8 @@ import '@testing-library/jest-dom';
 import { render } from '@testing-library/svelte';
 import Chat from './Chat.svelte';
 import { vi } from 'vitest';
-import { setupMockChannelsContext } from '../../test/utils';
-import type { ChannelsStore } from '$lib/context';
+import { setupMockChannelsContext } from '../../test';
+import type { ChannelsStore } from '$lib/context/channelsContext';
 
 const initialState: ChannelsStore = {
 	selectedChannelId: '2',
@@ -31,8 +31,10 @@ const initialState: ChannelsStore = {
 
 const derivedChannelStore = setupMockChannelsContext(initialState);
 
-vi.mock('$lib/context', () => {
+vi.mock('$lib/context/channelsContext', async () => {
+	const actual: object = await vi.importActual('$lib/context/channelsContext');
 	return {
+		...actual,
 		getChannelsContext: () => derivedChannelStore
 	};
 });

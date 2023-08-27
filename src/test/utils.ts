@@ -1,4 +1,8 @@
-import type { ChannelsStore, DerivedChannelsStore } from '$lib/context';
+import {
+	ChannelsContextMethods,
+	type ChannelsStore,
+	type DerivedChannelsStore
+} from '$lib/context';
 import { derived, writable, type Writable } from 'svelte/store';
 
 export const setupMockChannelsContext = (initialState: ChannelsStore) => {
@@ -18,11 +22,7 @@ export const setupMockChannelsContext = (initialState: ChannelsStore) => {
 		}
 	);
 
-	const setSelectedChannelId = (selectedChannelId: string) => {
-		mockChannelsContextStore.update((state) => {
-			state.selectedChannelId = selectedChannelId;
-			return state;
-		});
-	};
-	return { ...derivedChannelStore, setSelectedChannelId };
+	const helper = new ChannelsContextMethods(mockChannelsContextStore.update);
+
+	return { ...derivedChannelStore, helper: helper };
 };

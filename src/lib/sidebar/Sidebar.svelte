@@ -16,7 +16,7 @@
 	};
 
 	const onChannelClick = (channel: Channel) => {
-		channelsContext.setSelectedChannelId(channel.id);
+		channelsContext.helper.setSelectedChannelId(channel.id);
 		currentChannelView = true;
 	};
 

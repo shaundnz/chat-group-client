@@ -21,7 +21,7 @@
 	$: selectedChannelId, scrollToBottom();
 
 	const onSendClick = (messageContent: string) => {
-		channelsContext.sendMessage({ channelId: selectedChannel.id, content: messageContent });
+		channelsContext.helper.sendMessage({ channelId: selectedChannel.id, content: messageContent });
 		scrollToBottom();
 	};
 

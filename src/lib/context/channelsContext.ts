@@ -1,13 +1,13 @@
-import { derived, writable, type Readable, type Writable } from 'svelte/store';
+import { derived, writable, type Readable, type Writable, type Updater } from 'svelte/store';
 import { getContext, setContext } from 'svelte';
 import type { Channel, Message } from '$lib/types';
 import type {
 	CreateChannelDto,
-	ChannelDto,
 	ReceivedMessageEventResponseDto,
 	SendMessageEventRequestDto
 } from '$lib/contracts';
-import { io } from 'socket.io-client';
+import { ChannelsApi } from '$lib/api';
+import { getSocket } from '$lib/stores/socket';
 
 export interface ChannelsStore {
 	selectedChannelId: string;
@@ -19,12 +19,6 @@ export interface DerivedChannelsStore extends ChannelsStore {
 	selectedChannel: Channel;
 }
 
-export interface ChannelsContextFunctions {
-	createChannelAndUpdateChannels: (createChannelDto: CreateChannelDto) => Promise<void>;
-	sendMessage: (sendMessageEventRequestDto: SendMessageEventRequestDto) => void;
-	setSelectedChannelId: (selectedChannelId: string) => void;
-}
-
 export const createChannelsContext = (defaultChannelId: string, channels: Channel[]) => {
 	const initialState = {
 		selectedChannelId: defaultChannelId,
@@ -33,7 +27,6 @@ export const createChannelsContext = (defaultChannelId: string, channels: Channe
 	};
 
 	const channelsStore = writable<ChannelsStore>(initialState);
-	const { update } = channelsStore;
 
 	const derivedChannelStore = derived<Writable<ChannelsStore>, DerivedChannelsStore>(
 		channelsStore,
@@ -49,9 +42,61 @@ export const createChannelsContext = (defaultChannelId: string, channels: Channe
 		}
 	);
 
-	// Connect to the server, user joins all channel rooms
-	const socket = io('http://localhost:3000');
-	const sendMessage = (sendMessageEventRequestDto: SendMessageEventRequestDto) => {
+	const helper = new ChannelsContextMethods(channelsStore.update);
+
+	setupChannelsContextSocketListeners(helper);
+
+	setContext<Readable<DerivedChannelsStore> & { helper: ChannelsContextMethods }>(
+		'channelsContext',
+		{
+			...derivedChannelStore,
+			helper
+		}
+	);
+};
+
+export const getChannelsContext = () => {
+	return getContext<Readable<DerivedChannelsStore> & { helper: ChannelsContextMethods }>(
+		'channelsContext'
+	);
+};
+
+export class ChannelsContextMethods {
+	private readonly update: (this: void, updater: Updater<ChannelsStore>) => void;
+	constructor(update: (this: void, updater: Updater<ChannelsStore>) => void) {
+		this.update = update;
+	}
+
+	setChannelsLoadingState(loadingState: boolean) {
+		this.update((state) => {
+			state.channelsLoading = loadingState;
+			return state;
+		});
+	}
+
+	async fetchAndSetAllChannels() {
+		const allChannels = await ChannelsApi.getAllChannels();
+		this.update((state) => {
+			state.channels = allChannels;
+			return state;
+		});
+	}
+
+	async createNewChannelAndSetActive(createChannelDto: CreateChannelDto) {
+		this.setChannelsLoadingState(true);
+		const newChannel = await ChannelsApi.createChannel(createChannelDto);
+		this.update((state) => {
+			state.channels.push(newChannel);
+			state.selectedChannelId = newChannel.id;
+			return state;
+		});
+
+		this.setChannelsLoadingState(false);
+	}
+
+	sendMessage(sendMessageEventRequestDto: SendMessageEventRequestDto) {
+		const socket = getSocket();
+
 		const newMessage: Message = {
 			createdAt: new Date(),
 			content: sendMessageEventRequestDto.content
@@ -59,7 +104,7 @@ export const createChannelsContext = (defaultChannelId: string, channels: Channe
 
 		socket.emit('message:send', sendMessageEventRequestDto);
 
-		update((state) => {
+		this.update((state) => {
 			const selectedChannel = state.channels.find(
 				(channel) => channel.id === sendMessageEventRequestDto.channelId
 			);
@@ -70,81 +115,41 @@ export const createChannelsContext = (defaultChannelId: string, channels: Channe
 			selectedChannel.messages.push(newMessage);
 			return state;
 		});
-	};
+	}
 
-	socket.on(
-		'message:received',
-		({ channelId, createdAt, content }: ReceivedMessageEventResponseDto) => {
-			update((state) => {
-				const channelToUpdate = state.channels.find((channel) => channel.id === channelId);
-				if (!channelToUpdate) {
-					// throw new Error('Could not find channel');
-					return state;
-				}
-				channelToUpdate.messages.push({ createdAt: new Date(createdAt), content });
-				return state;
-			});
-		}
-	);
-
-	const setLoadingState = (loading: boolean) => {
-		update((state) => {
-			state.channelsLoading = loading;
-			return state;
-		});
-	};
-
-	const setAllChannels = async () => {
-		const allChannelsRes = await fetch('http://localhost:3000/channels');
-
-		const allChannelsJson: ChannelDto[] = await allChannelsRes.json();
-		update((state) => {
-			state.channels = allChannelsJson.map((c) => ({ ...c, members: [], messages: [] }));
-			return state;
-		});
-	};
-
-	const createChannelAndUpdateChannels = async (createChannelDto: CreateChannelDto) => {
-		setLoadingState(true);
-		const res = await fetch('http://localhost:3000/channels', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(createChannelDto)
-		});
-
-		const newChannelJson: ChannelDto = await res.json();
-
-		await setAllChannels();
-		update((state) => {
-			const newChannel = state.channels.find((channel) => channel.id === newChannelJson.id);
-			// TODO: Should show some error state here
-			if (!newChannel) {
-				throw new Error('Could not find channel');
-			}
-			state.selectedChannelId = newChannel.id;
-			return state;
-		});
-
-		setLoadingState(false);
-	};
-
-	const setSelectedChannelId = (selectedChannelId: string) => {
-		update((state) => {
+	setSelectedChannelId(selectedChannelId: string) {
+		this.update((state) => {
 			state.selectedChannelId = selectedChannelId;
 			return state;
 		});
+	}
+
+	pushMessageToChannel({ channelId, createdAt, content }: ReceivedMessageEventResponseDto) {
+		this.update((state) => {
+			const channelToUpdate = state.channels.find((channel) => channel.id === channelId);
+			if (!channelToUpdate) {
+				// throw new Error('Could not find channel');
+				return state;
+			}
+			channelToUpdate.messages.push({ createdAt: new Date(createdAt), content });
+			return state;
+		});
+	}
+}
+
+const setupChannelsContextSocketListeners = (helper: ChannelsContextMethods) => {
+	const socket = getSocket();
+
+	const receivedMessageCallback = (
+		receivedMessageEventResponseDto: ReceivedMessageEventResponseDto
+	) => {
+		helper.pushMessageToChannel(receivedMessageEventResponseDto);
+	};
+	socket.on('message:received', receivedMessageCallback);
+
+	const onChannelJoinedCallback = async () => {
+		await helper.fetchAndSetAllChannels();
 	};
 
-	setContext<Readable<DerivedChannelsStore> & ChannelsContextFunctions>('channelsContext', {
-		...derivedChannelStore,
-		createChannelAndUpdateChannels,
-		sendMessage,
-		setSelectedChannelId
-	});
-};
-
-export const getChannelsContext = () => {
-	return getContext<Readable<DerivedChannelsStore> & ChannelsContextFunctions>('channelsContext');
+	socket.on('channels:joined', onChannelJoinedCallback);
 };

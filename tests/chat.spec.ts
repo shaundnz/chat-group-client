@@ -21,6 +21,7 @@ test('landing page places user in the default channel', async ({ page }) => {
 	const chatPage = new ChatPage(page);
 
 	await page.goto('/');
+	await chatPage.waitForPageLoad();
 	await chatPage.verifyCurrentlySelectedChannel('Welcome');
 	await chatPage.verifySidebarAllChannelsView(['Welcome']);
 });
@@ -33,6 +34,7 @@ test('user can create a new channel and automatically navigates to it', async ({
 		description: 'A cool description'
 	};
 	await page.goto('/');
+	await chatPage.waitForPageLoad();
 
 	// Verify initial channel
 	await expect(page.getByRole('heading', { level: 1, name: 'Welcome' })).toBeVisible();
@@ -61,19 +63,23 @@ test('user can create a new channel and automatically navigates to it', async ({
 test('channel messages are persisted', async ({ page }) => {
 	const chatPage = new ChatPage(page);
 	await page.goto('/');
+	await chatPage.waitForPageLoad();
 	await chatPage.verifyCurrentlySelectedChannel('Welcome');
 	await chatPage.sendMessage('Message 1');
 	await chatPage.sendMessage('Message 2');
 	await chatPage.verifyAllMessages(['Message 1', 'Message 2']);
 	await page.reload();
+	await chatPage.waitForPageLoad();
+	await chatPage.waitForPageLoad();
 	await chatPage.verifyCurrentlySelectedChannel('Welcome');
-	chatPage.verifyAllMessages(['Message 1', 'Message 2']);
+	await chatPage.verifyAllMessages(['Message 1', 'Message 2']);
 });
 
 test('user can send a message to any channel', async ({ page }) => {
 	const chatPage = new ChatPage(page);
 
 	await page.goto('/');
+	await chatPage.waitForPageLoad();
 	await chatPage.verifyCurrentlySelectedChannel('Welcome');
 	await chatPage.goToChannel('My new channel');
 	await chatPage.sendMessage('Hello world!');
@@ -88,6 +94,7 @@ test('user sees a new message from another user', async ({ page }) => {
 
 	const chatPage = new ChatPage(page);
 	await page.goto('/');
+	await chatPage.waitForPageLoad();
 	await chatPage.verifyCurrentlySelectedChannel('Welcome');
 	socketClient.emit('message:send', {
 		channelId: defaultChannel.id,
@@ -106,6 +113,7 @@ test('messages from another user in an unselected channel are visible when selec
 
 	const chatPage = new ChatPage(page);
 	await page.goto('/');
+	await chatPage.waitForPageLoad();
 	await chatPage.verifyCurrentlySelectedChannel('Welcome');
 
 	await chatPage.sendMessage('Welcome channel message');

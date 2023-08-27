@@ -28,8 +28,10 @@ const initialState = {
 
 const derivedChannelStore = setupMockChannelsContext(initialState);
 
-vi.mock('$lib/context', () => {
+vi.mock('$lib/context/channelsContext', async () => {
+	const actual: object = await vi.importActual('$lib/context/channelsContext');
 	return {
+		...actual,
 		getChannelsContext: () => derivedChannelStore
 	};
 });

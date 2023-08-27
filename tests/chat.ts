@@ -71,4 +71,8 @@ export class ChatPage {
 		await expect(currentChannelMessages).toHaveCount(allMessageContents.length);
 		await expect(currentChannelMessages).toContainText(allMessageContents);
 	}
+
+	async waitForPageLoad() {
+		await expect(this.page.getByText('Connecting to channels')).not.toBeAttached();
+	}
 }
