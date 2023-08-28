@@ -1,7 +1,7 @@
 import { expect, test, type APIRequestContext } from '@playwright/test';
 import { ChatPage } from './chat';
 import { io } from 'socket.io-client';
-import type { ChannelDto } from '$lib/contracts';
+import type { ChannelDto, CreateChannelDto } from '$lib/contracts';
 
 let apiContext: APIRequestContext;
 
@@ -127,4 +127,31 @@ test('messages from another user in an unselected channel are visible when selec
 	await chatPage.verifyLastMessage('Welcome channel message');
 	await chatPage.goToChannel(allChannels[1].title);
 	await chatPage.verifyLastMessage('A message from another user in another channel');
+});
+
+test('current user sees new channel and joins room when a new channel is created', async ({
+	page
+}) => {
+	const chatPage = new ChatPage(page);
+	const socketClient = io('http://localhost:3000');
+
+	await page.goto('/');
+	await chatPage.waitForPageLoad();
+	await chatPage.verifyCurrentlySelectedChannel('Welcome');
+
+	const createChannelDto: CreateChannelDto = {
+		title: 'Frontend',
+		description: 'Space to discuss frontend topics'
+	};
+
+	const newChannelRes = await apiContext.post('/channels', { data: createChannelDto });
+	const newChannelJson = await newChannelRes.json();
+	await chatPage.goToChannel(createChannelDto.title);
+	await chatPage.verifySidebarSingleChannelView(createChannelDto);
+
+	socketClient.emit('message:send', {
+		channelId: newChannelJson.id,
+		content: 'Hello from the new channel'
+	});
+	await chatPage.verifyLastMessage('Hello from the new channel');
 });

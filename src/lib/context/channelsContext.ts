@@ -2,6 +2,7 @@ import { derived, writable, type Readable, type Writable, type Updater } from 's
 import { getContext, setContext } from 'svelte';
 import type { Channel, Message } from '$lib/types';
 import type {
+	ChannelCreatedEventResponseDto,
 	CreateChannelDto,
 	ReceivedMessageEventResponseDto,
 	SendMessageEventRequestDto
@@ -152,4 +153,13 @@ const setupChannelsContextSocketListeners = (helper: ChannelsContextMethods) => 
 	};
 
 	socket.on('channels:joined', onChannelJoinedCallback);
+
+	const onChannelCreatedCallback = async (
+		channelCreatedEventResponseDto: ChannelCreatedEventResponseDto
+	) => {
+		console.log('heloo');
+		await helper.fetchAndSetAllChannels();
+	};
+
+	socket.on('channel:created', onChannelCreatedCallback);
 };

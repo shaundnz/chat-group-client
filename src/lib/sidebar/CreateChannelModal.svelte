@@ -15,6 +15,8 @@
 			await channelsContext.helper.createNewChannelAndSetActive({ title, description });
 			dispatch('newChannelCreated');
 			window.create_channel_modal.close();
+			title = '';
+			description = '';
 		} catch {}
 	};
 
