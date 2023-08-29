@@ -1,5 +1,5 @@
 // place files you want to import through the `$lib` alias in this folder.
-import Chat from './chat/Chat.svelte';
-import Sidebar from './sidebar/Sidebar.svelte';
+import Chat from './components/chat/Chat.svelte';
+import Sidebar from './components/sidebar/Sidebar.svelte';
 
 export { Chat, Sidebar };
