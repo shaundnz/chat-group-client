@@ -2,7 +2,7 @@ import '@testing-library/jest-dom';
 import { render } from '@testing-library/svelte';
 import Chat from './Chat.svelte';
 import { vi } from 'vitest';
-import { setupMockChannelsContext } from '../../test';
+import { setupMockChannelsContext } from '../../../test';
 import type { ChannelsStore } from '$lib/context/channelsContext';
 
 const initialState: ChannelsStore = {

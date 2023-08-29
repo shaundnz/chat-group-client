@@ -2,7 +2,7 @@
 	import PlusIcon from '~icons/mdi/plus-thick';
 	import SidebarHeader from './SidebarHeader.svelte';
 	import Channel from './Channel.svelte';
-	import type { Channel as ChannelType } from '../types';
+	import type { Channel as ChannelType } from '../../types';
 
 	export let onCreateChannelButtonClick: () => void;
 	export let onChannelClick: (channel: ChannelType) => void;

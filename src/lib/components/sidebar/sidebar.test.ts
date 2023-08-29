@@ -3,7 +3,7 @@ import { render, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import Sidebar from './Sidebar.svelte';
-import { setupMockChannelsContext } from '../../test/utils';
+import { setupMockChannelsContext } from '../../../test/utils';
 
 const initialState = {
 	selectedChannelId: '2',
