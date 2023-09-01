@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Channel } from '../types';
+	import type { Channel } from '../../types';
 	import Member from './Member.svelte';
 	import SelectedChannel from './SelectedChannel.svelte';
 	import AllChannels from './AllChannels.svelte';

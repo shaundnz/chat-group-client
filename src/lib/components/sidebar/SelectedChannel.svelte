@@ -1,6 +1,6 @@
 <script lang="ts">
 	import ArrowLeftIcon from '~icons/mdi/arrow-left';
-	import type { Channel } from '../types';
+	import type { Channel } from '../../types';
 	import Member from './Member.svelte';
 	import SidebarHeader from './SidebarHeader.svelte';
 
