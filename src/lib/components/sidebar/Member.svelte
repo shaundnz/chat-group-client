@@ -1,5 +1,5 @@
 <script lang="ts">
-	export let name: string;
+	export let name = '';
 </script>
 
 <div class="flex space-x-4 items-center" data-testid="member">
