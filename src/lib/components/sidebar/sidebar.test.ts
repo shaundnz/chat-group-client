@@ -3,9 +3,9 @@ import { render, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import Sidebar from './Sidebar.svelte';
-import { setupMockChannelsContext } from '../../../test/utils';
+import { setupMockAuthContext, setupMockChannelsContext } from '../../../test/utils';
 
-const initialState = {
+const initialChannelState = {
 	selectedChannelId: '2',
 	channelsLoading: false,
 	channels: [
@@ -26,13 +26,27 @@ const initialState = {
 	]
 };
 
-const derivedChannelStore = setupMockChannelsContext(initialState);
+const initialAuthState = {
+	user: { username: 'userOne' },
+	isUserLoggedIn: true
+};
+
+const derivedChannelStore = setupMockChannelsContext(initialChannelState);
+const mockAuthContext = setupMockAuthContext(initialAuthState);
 
 vi.mock('$lib/context/channelsContext', async () => {
 	const actual: object = await vi.importActual('$lib/context/channelsContext');
 	return {
 		...actual,
 		getChannelsContext: () => derivedChannelStore
+	};
+});
+
+vi.mock('$lib/context/authContext', async () => {
+	const actual: object = await vi.importActual('$lib/context/authContext');
+	return {
+		...actual,
+		getAuthContext: () => mockAuthContext
 	};
 });
 
@@ -56,5 +70,10 @@ describe('Sidebar.svelte', () => {
 		await backButton.click();
 		expect(getByText('Channels')).toBeInTheDocument();
 		expect(queryByText('The welcome channel')).not.toBeInTheDocument();
+	});
+
+	it('should render the logged in users username', () => {
+		const { getByText } = render(Sidebar);
+		expect(getByText('userOne')).toBeInTheDocument();
 	});
 });

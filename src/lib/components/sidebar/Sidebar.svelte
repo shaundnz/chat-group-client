@@ -3,11 +3,13 @@
 	import Member from './Member.svelte';
 	import SelectedChannel from './SelectedChannel.svelte';
 	import AllChannels from './AllChannels.svelte';
-	import { getChannelsContext } from '$lib/context';
+	import { getAuthContext, getChannelsContext } from '$lib/context';
 	import CreateChannelModal from './CreateChannelModal.svelte';
 
 	const channelsContext = getChannelsContext();
 	$: ({ selectedChannel, channels } = $channelsContext);
+
+	const authContext = getAuthContext();
 
 	let currentChannelView = false;
 
@@ -44,7 +46,7 @@
 					{channels}
 				/>
 			{/if}
-			<div class="p-4 bg-base-300"><Member name="Anonymous User" /></div>
+			<div class="p-4 bg-base-300"><Member name={$authContext.user?.username} /></div>
 		</div>
 	</div>
 </div>
