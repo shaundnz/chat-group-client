@@ -2,7 +2,9 @@ import type { ErrorDto } from '$lib/contracts';
 import { HttpError } from './HttpError';
 
 function client<T>(endpoint: string, config: RequestInit): Promise<T> {
-	const headers = { 'Content-Type': 'application/json' };
+	const accessToken = localStorage.getItem('Authorization');
+
+	const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` };
 	config.headers = { ...headers, ...config.headers };
 
 	return fetch(`http://localhost:3000${endpoint}`, config).then(async (response) => {
