@@ -4,10 +4,12 @@ import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import Sidebar from './Sidebar.svelte';
 import { setupMockAuthContext, setupMockChannelsContext } from '../../../test/utils';
+import { AuthContextMethods } from '$lib/context';
 
 const initialChannelState = {
 	selectedChannelId: '2',
 	channelsLoading: false,
+	socketConnectedToChannelRooms: true,
 	channels: [
 		{
 			id: '1',
@@ -51,8 +53,6 @@ vi.mock('$lib/context/authContext', async () => {
 });
 
 describe('Sidebar.svelte', () => {
-	beforeEach;
-
 	it('should render all channels initially', () => {
 		const { getByText, queryByText, getByTestId } = render(Sidebar);
 		expect(getByText('Channels')).toBeInTheDocument();
@@ -75,5 +75,14 @@ describe('Sidebar.svelte', () => {
 	it('should render the logged in users username', () => {
 		const { getByText } = render(Sidebar);
 		expect(getByText('userOne')).toBeInTheDocument();
+	});
+
+	it('should fire the logout function', async () => {
+		const logoutSpy = vi.spyOn(AuthContextMethods.prototype, 'logout');
+		userEvent.setup();
+		const { getByRole } = render(Sidebar);
+		const logout = getByRole('button', { name: 'Logout' });
+		await userEvent.click(logout);
+		expect(logoutSpy).toHaveBeenCalled();
 	});
 });

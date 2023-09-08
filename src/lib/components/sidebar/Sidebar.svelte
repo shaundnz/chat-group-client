@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Channel } from '../../types';
+	import LogoutIcon from '~icons/mdi/Logout';
 	import Member from './Member.svelte';
 	import SelectedChannel from './SelectedChannel.svelte';
 	import AllChannels from './AllChannels.svelte';
@@ -46,7 +47,15 @@
 					{channels}
 				/>
 			{/if}
-			<div class="p-4 bg-base-300"><Member name={$authContext.user?.username} /></div>
+			<div class="p-4 bg-base-300 flex justify-between">
+				<Member name={$authContext.user?.username} />
+				<button
+					class="btn btn-primary btn-square text-lg"
+					on:click={() => authContext.helper.logout()}
+					><LogoutIcon />
+					<span class="sr-only">Logout</span></button
+				>
+			</div>
 		</div>
 	</div>
 </div>
