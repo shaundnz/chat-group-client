@@ -1,4 +1,10 @@
-import type { LoginRequestDto, LoginResponseDto, SignUpRequestDto, UserDto } from '$lib/contracts';
+import type {
+	LoginRequestDto,
+	LoginResponseDto,
+	SignUpBadRequestDto,
+	SignUpRequestDto,
+	UserDto
+} from '$lib/contracts';
 import { UserMapper } from '$lib/mappers';
 import type { User } from '$lib/types';
 import { get, post } from './fetchWrapper';
@@ -10,7 +16,10 @@ export class AuthApi {
 	}
 
 	static async signUp(signUpRequestDto: SignUpRequestDto): Promise<User> {
-		const signUpRes = await post<SignUpRequestDto, UserDto>('/auth/signup', signUpRequestDto);
+		const signUpRes = await post<SignUpRequestDto, UserDto, SignUpBadRequestDto>(
+			'/auth/signup',
+			signUpRequestDto
+		);
 		return UserMapper.DtoToObject(signUpRes);
 	}
 

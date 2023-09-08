@@ -1,10 +1,11 @@
 import type { ErrorDto } from '$lib/contracts';
 
-export class HttpError extends Error {
+export class HttpError<T> {
 	readonly statusCode: number;
+	readonly message: T;
 
-	constructor({ message, statusCode }: ErrorDto) {
-		super(message);
+	constructor({ message, statusCode }: ErrorDto<T>) {
+		this.message = message;
 		this.statusCode = statusCode;
 	}
 }
