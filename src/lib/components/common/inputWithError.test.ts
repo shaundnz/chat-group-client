@@ -7,19 +7,21 @@ describe('InputWithError.svetlte', () => {
 		const { getByLabelText, getByPlaceholderText } = render(InputWithError, {
 			errors: [],
 			value: '',
-			label: 'Username'
+			labelText: 'Confirm Password',
+			controlId: 'confirm-password'
 		});
-		expect(getByLabelText('Username:')).toBeInTheDocument();
-		expect(getByPlaceholderText('Username')).toBeInTheDocument();
+		expect(getByLabelText('Confirm Password:', { selector: 'input' })).toBeInTheDocument();
+		expect(getByPlaceholderText('Confirm Password')).toHaveAttribute('id', 'confirm-password');
 	});
 
 	it('should show errors', () => {
 		const { getByText } = render(InputWithError, {
-			errors: ['Username is taken'],
+			errors: ['Username is taken', 'Username cannot have spaces'],
 			value: '',
-			label: 'Username'
+			labelText: 'Username',
+			controlId: 'username'
 		});
-		expect(getByText('Username is taken')).toBeInTheDocument();
 		expect(getByText('Username is taken')).toHaveClass('text-error');
+		expect(getByText('Username cannot have spaces')).toHaveClass('text-error');
 	});
 });
