@@ -11,6 +11,7 @@ import { ChannelsApi } from '$lib/api';
 import { getSocket } from '$lib/stores/socket';
 
 export interface ChannelsStore {
+	socketConnectedToChannelRooms: boolean;
 	selectedChannelId: string;
 	channelsLoading: boolean;
 	channels: Channel[];
@@ -22,6 +23,7 @@ export interface DerivedChannelsStore extends ChannelsStore {
 
 export const createChannelsContext = (defaultChannelId: string, channels: Channel[]) => {
 	const initialState = {
+		socketConnectedToChannelRooms: false,
 		selectedChannelId: defaultChannelId,
 		channelsLoading: false,
 		channels: channels
@@ -71,6 +73,13 @@ export class ChannelsContextMethods {
 	setChannelsLoadingState(loadingState: boolean) {
 		this.update((state) => {
 			state.channelsLoading = loadingState;
+			return state;
+		});
+	}
+
+	setSocketConnectedToChannelRoomsState(connected: boolean) {
+		this.update((state) => {
+			state.socketConnectedToChannelRooms = connected;
 			return state;
 		});
 	}
@@ -150,6 +159,7 @@ const setupChannelsContextSocketListeners = (helper: ChannelsContextMethods) => 
 
 	const onChannelJoinedCallback = async () => {
 		await helper.fetchAndSetAllChannels();
+		helper.setSocketConnectedToChannelRoomsState(true);
 	};
 
 	socket.on('channels:joined', onChannelJoinedCallback);
@@ -157,7 +167,6 @@ const setupChannelsContextSocketListeners = (helper: ChannelsContextMethods) => 
 	const onChannelCreatedCallback = async (
 		channelCreatedEventResponseDto: ChannelCreatedEventResponseDto
 	) => {
-		console.log('heloo');
 		await helper.fetchAndSetAllChannels();
 	};
 
