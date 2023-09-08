@@ -7,11 +7,12 @@ describe('InputWithError.svetlte', () => {
 		const { getByLabelText, getByPlaceholderText } = render(InputWithError, {
 			errors: [],
 			value: '',
-			labelText: 'Confirm Password',
-			controlId: 'confirm-password'
+			labelText: 'Username',
+			controlId: 'username'
 		});
-		expect(getByLabelText('Confirm Password:', { selector: 'input' })).toBeInTheDocument();
-		expect(getByPlaceholderText('Confirm Password')).toHaveAttribute('id', 'confirm-password');
+		expect(getByLabelText('Username:', { selector: 'input' })).toBeInTheDocument();
+		expect(getByLabelText('Username:', { selector: 'input' })).toHaveAttribute('type', 'text');
+		expect(getByPlaceholderText('Username')).toHaveAttribute('id', 'username');
 	});
 
 	it('should show errors', () => {
@@ -23,5 +24,19 @@ describe('InputWithError.svetlte', () => {
 		});
 		expect(getByText('Username is taken')).toHaveClass('text-error');
 		expect(getByText('Username cannot have spaces')).toHaveClass('text-error');
+	});
+
+	it('should hide inputs with the password type', () => {
+		const { getByLabelText } = render(InputWithError, {
+			errors: [],
+			value: '',
+			labelText: 'Confirm Password',
+			controlId: 'confirm-password',
+			password: true
+		});
+		expect(getByLabelText('Confirm Password:', { selector: 'input' })).toHaveAttribute(
+			'type',
+			'password'
+		);
 	});
 });
