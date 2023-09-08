@@ -4,16 +4,16 @@ import { get, readable } from 'svelte/store';
 
 interface SocketStore {
 	socket: Socket;
-	joinedChannelRooms: boolean;
 }
 
 export const socketStore = readable<SocketStore>(undefined, (set) => {
-	const socket = io('http://localhost:3000');
-	socket.on('channels:join', () => {
-		set({ socket: socket, joinedChannelRooms: true });
+	const socket = io('http://localhost:3000', {
+		auth: (cb) => {
+			cb({ token: localStorage.getItem('Authorization') });
+		}
 	});
+	set({ socket });
 
-	set({ socket: socket, joinedChannelRooms: false });
 	return () => {
 		socket.disconnect();
 	};
@@ -22,9 +22,4 @@ export const socketStore = readable<SocketStore>(undefined, (set) => {
 export const getSocket = () => {
 	const $store = get(socketStore);
 	return $store.socket;
-};
-
-export const getIsJoinedChannelRooms = () => {
-	const $store = get(socketStore);
-	return $store.joinedChannelRooms;
 };
