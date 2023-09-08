@@ -1,4 +1,4 @@
-export interface ErrorDto {
-	message: string;
+export interface ErrorDto<T> {
+	message: T;
 	statusCode: number;
 }

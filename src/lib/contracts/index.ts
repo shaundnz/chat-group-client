@@ -10,3 +10,4 @@ export * from './LoginRequestDto';
 export * from './LoginResponseDto';
 export * from './SignUpRequestDto';
 export * from './UserDto';
+export * from './SignUpBadRequestDto';
