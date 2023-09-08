@@ -2,7 +2,9 @@ import type { Channel } from '$lib/types';
 import type { PageLoad } from './$types';
 import { ChannelsApi } from '$lib/api';
 import { redirect } from '@sveltejs/kit';
-import { HttpError } from '$lib/api/HttpError';
+import { HttpError } from '$lib/api';
+
+export const ssr = false;
 
 export const load: PageLoad<{ channels: Channel[]; defaultChannel: Channel }> = async () => {
 	try {
