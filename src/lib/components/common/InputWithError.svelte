@@ -11,6 +11,7 @@
 	placeholder={labelText}
 	id={controlId}
 	class={`input input-bordered input-lg bg-neutral ${errors.length && 'input-error'}`}
+	required
 	bind:value
 />
 {#if errors.length}
