@@ -2,14 +2,52 @@ import { expect, test, type APIRequestContext } from '@playwright/test';
 import { ChatPage } from './chat';
 import { io } from 'socket.io-client';
 import type { ChannelDto, CreateChannelDto } from '$lib/contracts';
+import { AuthPage } from './auth';
 
 let apiContext: APIRequestContext;
+const channelsTestUser = {
+	username: 'chatTestUserOne',
+	password: 'pass'
+};
+
+const otherChannelsUser = {
+	username: 'chatTestUserTwo',
+	password: 'pass'
+};
+
+let channelsTestUserAccessToken = '';
+let otherChannelsUserAccessToken = '';
 
 test.beforeAll(async ({ playwright }) => {
 	apiContext = await playwright.request.newContext({
 		// All requests we send go to this API endpoint.
 		baseURL: 'http://localhost:3000'
 	});
+
+	const createChannelsTestUserRes = await apiContext.post('/auth/signup', {
+		data: { ...channelsTestUser, confirmPassword: channelsTestUser.password }
+	});
+	expect(createChannelsTestUserRes.ok()).toBeTruthy();
+
+	const channelTestUserRes = await apiContext.post('/auth/login', { data: channelsTestUser });
+	expect(channelTestUserRes.ok()).toBeTruthy();
+	channelsTestUserAccessToken = (await channelTestUserRes.json()).accessToken;
+	expect(channelsTestUserAccessToken).toBeTruthy();
+
+	const createOtherChannelsUserRes = await apiContext.post('/auth/signup', {
+		data: { ...otherChannelsUser, confirmPassword: otherChannelsUser.password }
+	});
+	expect(createOtherChannelsUserRes.ok()).toBeTruthy();
+
+	const otherChannelsUserRes = await apiContext.post('/auth/login', { data: otherChannelsUser });
+	expect(otherChannelsUserRes.ok()).toBeTruthy();
+	otherChannelsUserAccessToken = (await otherChannelsUserRes.json()).accessToken;
+	expect(otherChannelsUserAccessToken).toBeTruthy();
+});
+
+test.beforeEach(async ({ page }) => {
+	const authPage = new AuthPage(page);
+	authPage.login(channelsTestUser.username, channelsTestUser.password);
 });
 
 test.afterAll(async () => {
@@ -87,10 +125,14 @@ test('user can send a message to any channel', async ({ page }) => {
 });
 
 test('user sees a new message from another user', async ({ page }) => {
-	const defaultChannelRes = await apiContext.get('/channels/default');
+	const defaultChannelRes = await apiContext.get('/channels/default', {
+		headers: { Authorization: `Bearer ${channelsTestUserAccessToken}` }
+	});
 	expect(defaultChannelRes.ok()).toBeTruthy();
 	const defaultChannel: ChannelDto = await defaultChannelRes.json();
-	const socketClient = io('http://localhost:3000');
+	const socketClient = io('http://localhost:3000', {
+		auth: { token: otherChannelsUserAccessToken }
+	});
 
 	const chatPage = new ChatPage(page);
 	await page.goto('/');
@@ -106,10 +148,14 @@ test('user sees a new message from another user', async ({ page }) => {
 test('messages from another user in an unselected channel are visible when selected', async ({
 	page
 }) => {
-	const allChannelsRes = await apiContext.get('/channels');
+	const allChannelsRes = await apiContext.get('/channels', {
+		headers: { Authorization: `Bearer ${channelsTestUserAccessToken}` }
+	});
 	expect(allChannelsRes.ok()).toBeTruthy();
 	const allChannels: ChannelDto[] = await allChannelsRes.json();
-	const socketClient = io('http://localhost:3000');
+	const socketClient = io('http://localhost:3000', {
+		auth: { token: otherChannelsUserAccessToken }
+	});
 
 	const chatPage = new ChatPage(page);
 	await page.goto('/');
@@ -133,7 +179,9 @@ test('current user sees new channel and joins room when a new channel is created
 	page
 }) => {
 	const chatPage = new ChatPage(page);
-	const socketClient = io('http://localhost:3000');
+	const socketClient = io('http://localhost:3000', {
+		auth: { token: otherChannelsUserAccessToken }
+	});
 
 	await page.goto('/');
 	await chatPage.waitForPageLoad();
@@ -144,7 +192,12 @@ test('current user sees new channel and joins room when a new channel is created
 		description: 'Space to discuss frontend topics'
 	};
 
-	const newChannelRes = await apiContext.post('/channels', { data: createChannelDto });
+	const newChannelRes = await apiContext.post('/channels', {
+		data: createChannelDto,
+		headers: {
+			Authorization: `Bearer ${otherChannelsUserAccessToken}`
+		}
+	});
 	const newChannelJson = await newChannelRes.json();
 	await chatPage.goToChannel(createChannelDto.title);
 	await chatPage.verifySidebarSingleChannelView(createChannelDto);
