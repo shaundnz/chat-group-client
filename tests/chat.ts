@@ -75,4 +75,8 @@ export class ChatPage {
 	async waitForPageLoad() {
 		await expect(this.page.getByText('Connecting to channels')).not.toBeAttached();
 	}
+
+	async logout() {
+		await this.page.getByRole('button', { name: 'Logout' }).click();
+	}
 }

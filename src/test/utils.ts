@@ -1,7 +1,9 @@
 import {
 	ChannelsContextMethods,
+	type AuthStore,
 	type ChannelsStore,
-	type DerivedChannelsStore
+	type DerivedChannelsStore,
+	AuthContextMethods
 } from '$lib/context';
 import { derived, writable, type Writable } from 'svelte/store';
 
@@ -25,4 +27,10 @@ export const setupMockChannelsContext = (initialState: ChannelsStore) => {
 	const helper = new ChannelsContextMethods(mockChannelsContextStore.update);
 
 	return { ...derivedChannelStore, helper: helper };
+};
+
+export const setupMockAuthContext = (initialState: AuthStore) => {
+	const mockAuthStore = writable<AuthStore>(initialState);
+	const helper = new AuthContextMethods(mockAuthStore.update);
+	return { ...mockAuthStore, helper };
 };
