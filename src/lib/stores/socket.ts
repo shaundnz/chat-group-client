@@ -7,7 +7,7 @@ interface SocketStore {
 }
 
 export const socketStore = readable<SocketStore>(undefined, (set) => {
-	const socket = io('http://localhost:3000', {
+	const socket = io(`${import.meta.env.VITE_API_BASE_URL}`, {
 		auth: (cb) => {
 			cb({ token: localStorage.getItem('Authorization') });
 		}
