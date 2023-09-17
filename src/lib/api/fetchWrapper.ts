@@ -7,7 +7,7 @@ function client<T, V = string>(endpoint: string, config: RequestInit): Promise<T
 	const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` };
 	config.headers = { ...headers, ...config.headers };
 
-	return fetch(`http://localhost:3000${endpoint}`, config).then(async (response) => {
+	return fetch(`${import.meta.env.VITE_API_BASE_URL}${endpoint}`, config).then(async (response) => {
 		if (response.ok) {
 			return await response.json();
 		} else {
