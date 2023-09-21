@@ -8,7 +8,6 @@
 	export let password = false;
 
 	const handleInput: FormEventHandler<HTMLInputElement> = (e) => {
-		console.log(e.currentTarget.value);
 		value = e.currentTarget.value;
 	};
 </script>
