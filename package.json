@@ -49,6 +49,7 @@
 	"type": "module",
 	"dependencies": {
 		"dayjs": "^1.11.9",
+		"dotenv": "^16.3.1",
 		"playright": "^0.0.22",
 		"socket.io-client": "^4.7.2"
 	}

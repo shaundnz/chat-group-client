@@ -3,6 +3,7 @@ import { ChatPage } from './chat';
 import { io } from 'socket.io-client';
 import type { ChannelDto, CreateChannelDto } from '$lib/contracts';
 import { AuthPage } from './auth';
+import 'dotenv/config';
 
 let apiContext: APIRequestContext;
 const channelsTestUser = {
@@ -18,10 +19,11 @@ const otherChannelsUser = {
 let channelsTestUserAccessToken = '';
 let otherChannelsUserAccessToken = '';
 
+const API_BASE_URL = process.env.VITE_API_BASE_URL || 'http://localhost:3000';
+
 test.beforeAll(async ({ playwright }) => {
 	apiContext = await playwright.request.newContext({
-		// All requests we send go to this API endpoint.
-		baseURL: 'http://localhost:3000'
+		baseURL: API_BASE_URL
 	});
 
 	const createChannelsTestUserRes = await apiContext.post('/auth/signup', {
@@ -130,7 +132,7 @@ test('user sees a new message from another user', async ({ page }) => {
 	});
 	expect(defaultChannelRes.ok()).toBeTruthy();
 	const defaultChannel: ChannelDto = await defaultChannelRes.json();
-	const socketClient = io('http://localhost:3000', {
+	const socketClient = io(API_BASE_URL, {
 		auth: { token: otherChannelsUserAccessToken }
 	});
 
@@ -153,7 +155,7 @@ test('messages from another user in an unselected channel are visible when selec
 	});
 	expect(allChannelsRes.ok()).toBeTruthy();
 	const allChannels: ChannelDto[] = await allChannelsRes.json();
-	const socketClient = io('http://localhost:3000', {
+	const socketClient = io(API_BASE_URL, {
 		auth: { token: otherChannelsUserAccessToken }
 	});
 
@@ -179,7 +181,7 @@ test('current user sees new channel and joins room when a new channel is created
 	page
 }) => {
 	const chatPage = new ChatPage(page);
-	const socketClient = io('http://localhost:3000', {
+	const socketClient = io(API_BASE_URL, {
 		auth: { token: otherChannelsUserAccessToken }
 	});
 
