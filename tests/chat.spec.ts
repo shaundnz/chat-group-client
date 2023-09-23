@@ -1,18 +1,20 @@
 import { expect, test, type APIRequestContext } from '@playwright/test';
-import { ChatPage } from './chat';
-import { io } from 'socket.io-client';
-import type { ChannelDto, CreateChannelDto } from '$lib/contracts';
-import { AuthPage } from './auth';
 import 'dotenv/config';
+import type { CreateChannelDto } from '$lib/contracts';
+import { ChatPage } from './chat';
+import { AuthPage } from './auth';
+import { ChatApiContext } from './api';
+import { getUniqueString } from './utils';
 
 let apiContext: APIRequestContext;
+
 const channelsTestUser = {
-	username: 'chatTestUserOne',
+	username: '',
 	password: 'pass'
 };
 
 const otherChannelsUser = {
-	username: 'chatTestUserTwo',
+	username: '',
 	password: 'pass'
 };
 
@@ -26,30 +28,20 @@ test.beforeAll(async ({ playwright }) => {
 		baseURL: API_BASE_URL
 	});
 
-	const createChannelsTestUserRes = await apiContext.post('/auth/signup', {
-		data: { ...channelsTestUser, confirmPassword: channelsTestUser.password }
-	});
-	expect(createChannelsTestUserRes.ok()).toBeTruthy();
+	const chatApi = new ChatApiContext(apiContext);
 
-	const channelTestUserRes = await apiContext.post('/auth/login', { data: channelsTestUser });
-	expect(channelTestUserRes.ok()).toBeTruthy();
-	channelsTestUserAccessToken = (await channelTestUserRes.json()).accessToken;
-	expect(channelsTestUserAccessToken).toBeTruthy();
+	channelsTestUser.username = getUniqueString('channelsTestUser');
+	await chatApi.signUp({ ...channelsTestUser, confirmPassword: channelsTestUser.password });
+	channelsTestUserAccessToken = await chatApi.login(channelsTestUser);
 
-	const createOtherChannelsUserRes = await apiContext.post('/auth/signup', {
-		data: { ...otherChannelsUser, confirmPassword: otherChannelsUser.password }
-	});
-	expect(createOtherChannelsUserRes.ok()).toBeTruthy();
-
-	const otherChannelsUserRes = await apiContext.post('/auth/login', { data: otherChannelsUser });
-	expect(otherChannelsUserRes.ok()).toBeTruthy();
-	otherChannelsUserAccessToken = (await otherChannelsUserRes.json()).accessToken;
-	expect(otherChannelsUserAccessToken).toBeTruthy();
+	otherChannelsUser.username = getUniqueString('otherChannelsUser');
+	await chatApi.signUp({ ...otherChannelsUser, confirmPassword: otherChannelsUser.password });
+	otherChannelsUserAccessToken = await chatApi.login(otherChannelsUser);
 });
 
 test.beforeEach(async ({ page }) => {
 	const authPage = new AuthPage(page);
-	authPage.login(channelsTestUser.username, channelsTestUser.password);
+	authPage.login(channelsTestUser);
 });
 
 test.afterAll(async () => {
@@ -63,14 +55,14 @@ test('landing page places user in the default channel', async ({ page }) => {
 	await page.goto('/');
 	await chatPage.waitForPageLoad();
 	await chatPage.verifyCurrentlySelectedChannel('Welcome');
-	await chatPage.verifySidebarAllChannelsView(['Welcome']);
+	await chatPage.verifySidebarChannel('Welcome');
 });
 
 test('user can create a new channel and automatically navigates to it', async ({ page }) => {
 	const chatPage = new ChatPage(page);
 
 	const channel = {
-		title: 'My new channel',
+		title: getUniqueString('My new channel'),
 		description: 'A cool description'
 	};
 	await page.goto('/');
@@ -97,69 +89,70 @@ test('user can create a new channel and automatically navigates to it', async ({
 
 	// Verify new channel in all channel view
 	await page.getByRole('button', { name: 'Back' }).click();
-	await chatPage.verifySidebarAllChannelsView(['Welcome', channel.title]);
+	await chatPage.verifySidebarChannel(channel.title);
+
+	// Send a message
+	await chatPage.sendMessage('Hello world!');
+	await chatPage.verifyLastNMessages(['Hello world!']);
 });
 
 test('channel messages are persisted', async ({ page }) => {
 	const chatPage = new ChatPage(page);
+
 	await page.goto('/');
 	await chatPage.waitForPageLoad();
 	await chatPage.verifyCurrentlySelectedChannel('Welcome');
 	await chatPage.sendMessage('Message 1');
 	await chatPage.sendMessage('Message 2');
-	await chatPage.verifyAllMessages(['Message 1', 'Message 2']);
+	await chatPage.verifyLastNMessages(['Message 2', 'Message 1']);
 	await page.reload();
 	await chatPage.waitForPageLoad();
 	await chatPage.waitForPageLoad();
 	await chatPage.verifyCurrentlySelectedChannel('Welcome');
-	await chatPage.verifyAllMessages(['Message 1', 'Message 2']);
-});
-
-test('user can send a message to any channel', async ({ page }) => {
-	const chatPage = new ChatPage(page);
-
-	await page.goto('/');
-	await chatPage.waitForPageLoad();
-	await chatPage.verifyCurrentlySelectedChannel('Welcome');
-	await chatPage.goToChannel('My new channel');
-	await chatPage.sendMessage('Hello world!');
-	await chatPage.verifyAllMessages(['Hello world!']);
+	await chatPage.verifyLastNMessages(['Message 2', 'Message 1']);
 });
 
 test('user sees a new message from another user', async ({ page }) => {
-	const defaultChannelRes = await apiContext.get('/channels/default', {
-		headers: { Authorization: `Bearer ${channelsTestUserAccessToken}` }
-	});
-	expect(defaultChannelRes.ok()).toBeTruthy();
-	const defaultChannel: ChannelDto = await defaultChannelRes.json();
-	const socketClient = io(API_BASE_URL, {
-		auth: { token: otherChannelsUserAccessToken }
-	});
-
+	const chatApi = new ChatApiContext(apiContext);
 	const chatPage = new ChatPage(page);
+
+	const otherChannelsUserSocketClient = chatApi.createSocket(
+		API_BASE_URL,
+		otherChannelsUserAccessToken
+	);
+
+	const createChannelDto: CreateChannelDto = {
+		title: getUniqueString('New channel'),
+		description: 'Space to discuss frontend topics'
+	};
+
+	const newChannel = await chatApi.createChannel(createChannelDto, channelsTestUserAccessToken);
+
 	await page.goto('/');
 	await chatPage.waitForPageLoad();
-	await chatPage.verifyCurrentlySelectedChannel('Welcome');
-	socketClient.emit('message:send', {
-		channelId: defaultChannel.id,
+	await chatPage.goToChannel(newChannel.title);
+	await chatPage.verifyCurrentlySelectedChannel(newChannel.title);
+
+	chatApi.sendMessage(otherChannelsUserSocketClient, {
+		channelId: newChannel.id,
 		content: 'A message from another user'
 	});
+
 	await chatPage.verifyLastMessage('A message from another user');
 });
 
 test('messages from another user in an unselected channel are visible when selected', async ({
 	page
 }) => {
-	const allChannelsRes = await apiContext.get('/channels', {
-		headers: { Authorization: `Bearer ${channelsTestUserAccessToken}` }
-	});
-	expect(allChannelsRes.ok()).toBeTruthy();
-	const allChannels: ChannelDto[] = await allChannelsRes.json();
-	const socketClient = io(API_BASE_URL, {
-		auth: { token: otherChannelsUserAccessToken }
-	});
-
+	const chatApi = new ChatApiContext(apiContext);
 	const chatPage = new ChatPage(page);
+
+	const allChannels = await chatApi.getAllChannels(channelsTestUserAccessToken);
+	const otherChannelsUserSocketClient = chatApi.createSocket(
+		API_BASE_URL,
+		otherChannelsUserAccessToken
+	);
+
 	await page.goto('/');
 	await chatPage.waitForPageLoad();
 	await chatPage.verifyCurrentlySelectedChannel('Welcome');
@@ -167,7 +160,7 @@ test('messages from another user in an unselected channel are visible when selec
 	await chatPage.sendMessage('Welcome channel message');
 	await chatPage.verifyLastMessage('Welcome channel message');
 
-	socketClient.emit('message:send', {
+	chatApi.sendMessage(otherChannelsUserSocketClient, {
 		channelId: allChannels[1].id,
 		content: 'A message from another user in another channel'
 	});
@@ -180,33 +173,32 @@ test('messages from another user in an unselected channel are visible when selec
 test('current user sees new channel and joins room when a new channel is created', async ({
 	page
 }) => {
+	const chatApi = new ChatApiContext(apiContext);
 	const chatPage = new ChatPage(page);
-	const socketClient = io(API_BASE_URL, {
-		auth: { token: otherChannelsUserAccessToken }
-	});
+
+	const otherChannelsUserSocketClient = chatApi.createSocket(
+		API_BASE_URL,
+		otherChannelsUserAccessToken
+	);
 
 	await page.goto('/');
 	await chatPage.waitForPageLoad();
 	await chatPage.verifyCurrentlySelectedChannel('Welcome');
 
 	const createChannelDto: CreateChannelDto = {
-		title: 'Frontend',
+		title: getUniqueString('Frontend'),
 		description: 'Space to discuss frontend topics'
 	};
 
-	const newChannelRes = await apiContext.post('/channels', {
-		data: createChannelDto,
-		headers: {
-			Authorization: `Bearer ${otherChannelsUserAccessToken}`
-		}
-	});
-	const newChannelJson = await newChannelRes.json();
+	const newChannel = await chatApi.createChannel(createChannelDto, otherChannelsUserAccessToken);
+
 	await chatPage.goToChannel(createChannelDto.title);
 	await chatPage.verifySidebarSingleChannelView(createChannelDto);
 
-	socketClient.emit('message:send', {
-		channelId: newChannelJson.id,
+	chatApi.sendMessage(otherChannelsUserSocketClient, {
+		channelId: newChannel.id,
 		content: 'Hello from the new channel'
 	});
+
 	await chatPage.verifyLastMessage('Hello from the new channel');
 });

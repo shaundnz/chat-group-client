@@ -23,12 +23,11 @@ export class ChatPage {
 		await expect(this.page.getByRole('heading', { level: 2, name: title })).toBeVisible();
 	}
 
-	async verifySidebarAllChannelsView(allChannelTitles: string[]) {
+	async verifySidebarChannel(channelTitle: string) {
 		await expect(this.page.getByRole('heading', { level: 2, name: 'Channels' })).toBeVisible();
 		await expect(this.page.getByRole('button', { name: 'Create channel' })).toBeVisible();
-		const allChannelsListItems = this.page.getByTestId('all-channels-list').getByRole('listitem');
-		await expect(allChannelsListItems).toHaveCount(allChannelTitles.length);
-		await expect(allChannelsListItems).toContainText(allChannelTitles);
+		const sidebarChannels = this.page.getByTestId('all-channels-list');
+		await expect(sidebarChannels).toContainText(channelTitle);
 	}
 
 	async verifySidebarSingleChannelView({
@@ -66,10 +65,13 @@ export class ChatPage {
 		await expect(this.page.getByTestId('message').last()).toContainText(content);
 	}
 
-	async verifyAllMessages(allMessageContents: string[]) {
-		const currentChannelMessages = this.page.getByTestId('message');
-		await expect(currentChannelMessages).toHaveCount(allMessageContents.length);
-		await expect(currentChannelMessages).toContainText(allMessageContents);
+	async verifyLastNMessages(lastNMessages: string[]) {
+		const currentChannelMessages = await this.page.getByTestId('message').all();
+		const messagesLen = currentChannelMessages.length;
+		expect(messagesLen).toBeGreaterThanOrEqual(lastNMessages.length);
+		for (let i = 0; i < lastNMessages.length; i++) {
+			await expect(currentChannelMessages[messagesLen - 1 - i]).toContainText(lastNMessages[i]);
+		}
 	}
 
 	async waitForPageLoad() {

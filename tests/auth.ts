@@ -1,3 +1,4 @@
+import type { LoginRequestDto, SignUpRequestDto } from '$lib/contracts';
 import { expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
@@ -36,14 +37,14 @@ export class AuthPage {
 		await expect(this.page.getByText(errorMessage)).toHaveClass(/text-error/);
 	}
 
-	async createAccount(username: string, password: string, confirmPassword: string) {
+	async createAccount({ username, password, confirmPassword }: SignUpRequestDto) {
 		await this.page.getByLabel('Username:').fill(username);
 		await this.page.getByLabel('Password:', { exact: true }).fill(password);
 		await this.page.getByLabel('Confirm Password:').fill(confirmPassword);
 		await this.page.getByRole('button', { name: 'Sign Up' }).click();
 	}
 
-	async login(username: string, password: string) {
+	async login({ username, password }: LoginRequestDto) {
 		await this.page.getByLabel('username').fill(username);
 		await this.page.getByLabel('password').fill(password);
 		await this.page.getByRole('button', { name: 'Login' }).click();

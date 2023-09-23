@@ -38,6 +38,7 @@ export const createChannelsContext = (defaultChannelId: string, channels: Channe
 				(channel) => channel.id === state.selectedChannelId
 			);
 			if (!selectedChannel) throw Error('Could not find channel');
+			selectedChannel.messages.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
 			return {
 				...state,
 				selectedChannel
