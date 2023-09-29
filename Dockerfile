@@ -1,5 +1,9 @@
 FROM node:18-alpine as build
 
+ARG VITE_API_BASE_URL
+
+RUN test -n "$VITE_API_BASE_URL" || (echo "VITE_API_BASE_URL not set" && false)
+
 WORKDIR /app
 
 COPY package*.json ./
