@@ -1,8 +1,9 @@
 import type { ErrorDto } from '$lib/contracts';
 import { HttpError } from './HttpError';
+import { getAuthToken } from '$lib/stores/authToken';
 
 function client<T, V = string>(endpoint: string, config: RequestInit): Promise<T> {
-	const accessToken = localStorage.getItem('Authorization');
+	const accessToken = getAuthToken();
 
 	const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` };
 	config.headers = { ...headers, ...config.headers };

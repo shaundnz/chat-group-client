@@ -1,5 +1,6 @@
 import { AuthApi } from '$lib/api';
 import type { LoginRequestDto, SignUpRequestDto } from '$lib/contracts';
+import { clearAuthToken, setAuthToken } from '$lib/stores/authToken';
 import { getSocket } from '$lib/stores/socket';
 import type { User } from '$lib/types';
 import { errorToast } from '$lib/utils';
@@ -54,7 +55,7 @@ export class AuthContextMethods {
 
 	async login(loginRequestDto: LoginRequestDto) {
 		const loginRes = await AuthApi.login(loginRequestDto);
-		localStorage.setItem('Authorization', loginRes.accessToken);
+		setAuthToken(loginRes.accessToken);
 		this.update((state) => {
 			state.user = { username: loginRes.user.username };
 			return state;
@@ -62,7 +63,7 @@ export class AuthContextMethods {
 	}
 
 	logout() {
-		localStorage.removeItem('Authorization');
+		clearAuthToken();
 		this.update((state) => {
 			state.user = null;
 			return state;

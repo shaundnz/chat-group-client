@@ -2,7 +2,7 @@ import { AuthApi, HttpError } from '$lib/api';
 import type { User } from '$lib/types';
 import type { PageLoad } from './$types';
 
-export const ssr = false;
+export const prerender = true;
 
 export const load: PageLoad<{ user: User | null }> = async () => {
 	try {

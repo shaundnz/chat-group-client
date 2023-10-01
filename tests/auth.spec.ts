@@ -1,4 +1,5 @@
 import { test, type APIRequestContext } from '@playwright/test';
+import 'dotenv/config';
 import { AuthPage } from './auth';
 import { ChatPage } from './chat';
 import { getUniqueString } from './utils';
@@ -10,11 +11,11 @@ const sharedAuthTestUser = {
 	password: 'Password1!'
 };
 
-const API_BASE_URL = process.env.VITE_API_BASE_URL || 'http://localhost:3000';
+const API_BASE_URL = process.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 test.beforeAll(async ({ playwright }) => {
 	apiContext = await playwright.request.newContext({
-		baseURL: API_BASE_URL
+		baseURL: API_BASE_URL + '/'
 	});
 	const chatApi = new ChatApiContext(apiContext);
 	sharedAuthTestUser.username = getUniqueString('authTestUser');

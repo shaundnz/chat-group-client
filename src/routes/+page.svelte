@@ -6,8 +6,10 @@
 	import LoadingOverlay from '$lib/components/common/LoadingOverlay.svelte';
 	import { getAuthContext } from '$lib/context';
 	import Redirect from '$lib/components/common/Redirect.svelte';
+	import { authTokenStore } from '$lib/stores/authToken';
 	export let data: PageData;
 
+	$authTokenStore;
 	$socketStore;
 
 	createChannelsContext(data.defaultChannel.id, data.channels);

@@ -21,11 +21,11 @@ const otherChannelsUser = {
 let channelsTestUserAccessToken = '';
 let otherChannelsUserAccessToken = '';
 
-const API_BASE_URL = process.env.VITE_API_BASE_URL || 'http://localhost:3000';
+const API_BASE_URL = process.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 test.beforeAll(async ({ playwright }) => {
 	apiContext = await playwright.request.newContext({
-		baseURL: API_BASE_URL
+		baseURL: API_BASE_URL + '/'
 	});
 
 	const chatApi = new ChatApiContext(apiContext);
@@ -147,7 +147,12 @@ test('messages from another user in an unselected channel are visible when selec
 	const chatApi = new ChatApiContext(apiContext);
 	const chatPage = new ChatPage(page);
 
-	const allChannels = await chatApi.getAllChannels(channelsTestUserAccessToken);
+	const createChannelDto: CreateChannelDto = {
+		title: getUniqueString('New channel'),
+		description: 'Space to discuss frontend topics'
+	};
+
+	const newChannel = await chatApi.createChannel(createChannelDto, channelsTestUserAccessToken);
 	const otherChannelsUserSocketClient = chatApi.createSocket(
 		API_BASE_URL,
 		otherChannelsUserAccessToken
@@ -161,12 +166,12 @@ test('messages from another user in an unselected channel are visible when selec
 	await chatPage.verifyLastMessage('Welcome channel message');
 
 	chatApi.sendMessage(otherChannelsUserSocketClient, {
-		channelId: allChannels[1].id,
+		channelId: newChannel.id,
 		content: 'A message from another user in another channel'
 	});
 
 	await chatPage.verifyLastMessage('Welcome channel message');
-	await chatPage.goToChannel(allChannels[1].title);
+	await chatPage.goToChannel(newChannel.title);
 	await chatPage.verifyLastMessage('A message from another user in another channel');
 });
 

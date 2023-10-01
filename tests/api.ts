@@ -16,7 +16,7 @@ export class ChatApiContext {
 	}
 
 	async login(loginRequestDto: LoginRequestDto): Promise<string> {
-		const loginRes = await this.apiContext.post('/auth/login', { data: loginRequestDto });
+		const loginRes = await this.apiContext.post('./auth/login', { data: loginRequestDto });
 		expect(loginRes.ok()).toBeTruthy();
 		const accessToken = (await loginRes.json()).accessToken;
 		expect(accessToken).toBeTruthy();
@@ -24,14 +24,14 @@ export class ChatApiContext {
 	}
 
 	async signUp(signUpRequestDto: SignUpRequestDto) {
-		const signUpRes = await this.apiContext.post('/auth/signup', {
+		const signUpRes = await this.apiContext.post('./auth/signup', {
 			data: signUpRequestDto
 		});
 		expect(signUpRes.ok()).toBeTruthy();
 	}
 
 	async getDefaultChannel(accessToken: string) {
-		const defaultChannelRes = await this.apiContext.get('/channels/default', {
+		const defaultChannelRes = await this.apiContext.get('./channels/default', {
 			headers: { Authorization: `Bearer ${accessToken}` }
 		});
 		expect(defaultChannelRes.ok()).toBeTruthy();
@@ -40,7 +40,7 @@ export class ChatApiContext {
 	}
 
 	async getAllChannels(accessToken: string) {
-		const allChannelsRes = await this.apiContext.get('/channels', {
+		const allChannelsRes = await this.apiContext.get('./channels', {
 			headers: { Authorization: `Bearer ${accessToken}` }
 		});
 		expect(allChannelsRes.ok()).toBeTruthy();
@@ -49,7 +49,7 @@ export class ChatApiContext {
 	}
 
 	async createChannel(createChannelDto: CreateChannelDto, accessToken: string) {
-		const newChannelRes = await this.apiContext.post('/channels', {
+		const newChannelRes = await this.apiContext.post('./channels', {
 			data: createChannelDto,
 			headers: {
 				Authorization: `Bearer ${accessToken}`
