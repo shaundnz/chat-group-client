@@ -115,7 +115,7 @@ jobs:
       - name: Deploy to S3
         uses: reggionick/s3-deploy@v4
         with:
-          folder: src
+          folder: build
           bucket: ${{ secrets.S3_BUCKET }}
           bucket-region: ${{ env.AWS_REGION }}
           private: true
