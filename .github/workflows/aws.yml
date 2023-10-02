@@ -78,11 +78,11 @@ jobs:
       - name: Run E2E tests
         run: npm run test:integration
 
-      - name: Upload build files
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
           name: build
-          path: build
+          path: client/build
 
   deploy:
     name: Deploy
