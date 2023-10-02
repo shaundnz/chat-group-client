@@ -119,3 +119,4 @@ jobs:
           bucket: ${{ secrets.S3_BUCKET }}
           bucket-region: ${{ env.AWS_REGION }}
           private: true
+          delete-removed: true
