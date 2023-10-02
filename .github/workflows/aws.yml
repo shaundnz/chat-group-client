@@ -78,6 +78,12 @@ jobs:
       - name: Run E2E tests
         run: npm run test:integration
 
+      - name: Upload build files
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: build
+
   deploy:
     name: Deploy
     needs: test
@@ -99,6 +105,11 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::758189075923:role/chat-app-client-deploy-app-to-s3
           aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build
 
       - name: Deploy to S3
         uses: reggionick/s3-deploy@v4
