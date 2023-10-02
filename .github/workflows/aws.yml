@@ -4,18 +4,6 @@ on:
   push:
     branches: ['main']
 
-env:
-  S3_BUCKET_NAME: ###
-  AWS_REGION: ###
-  ECR_REGISTRY_ALIAS: o8v5n8z7
-  ECR_REPOSITORY_REGION: us-east-1
-  ECR_REPOSITORY: chat-app-client-repository
-  ECS_SERVICE: ecs-chat-app-client-service
-  ECS_CLUSTER_REGION: ap-southeast-2
-  ECS_CLUSTER: chat-app-cluster
-  ECS_TASK_DEFINITION: .aws/task-definition.json
-  CONTAINER_NAME: ecs-chat-app-client
-
 permissions:
   contents: read
 
@@ -90,26 +78,31 @@ jobs:
       - name: Run E2E tests
         run: npm run test:integration
 
-      - uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
-
   deploy:
     name: Deploy
     needs: test
     runs-on: ubuntu-latest
     environment: production
+    permissions:
+      id-token: write
+      contents: read
+
+    env:
+      AWS_REGION: ap-southeast-2
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Configure AWS credentials to get public ECR in us-east-1
-        uses: aws-actions/configure-aws-credentials@v1
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.ECR_REPOSITORY_REGION }}
+          role-to-assume: arn:aws:iam::758189075923:role/chat-app-client-deploy-app-to-s3
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy to S3
+        uses: reggionick/s3-deploy@v4
+        with:
+          folder: build
+          bucket: ${{ secrets.S3_BUCKET }}
+          bucket-region: ${{ env.AWS_REGION }}
