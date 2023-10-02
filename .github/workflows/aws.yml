@@ -8,85 +8,85 @@ permissions:
   contents: read
 
 jobs:
-  # test:
-  #   name: Test
-  #   runs-on: ubuntu-latest
+  test:
+    name: Test
+    runs-on: ubuntu-latest
 
-  #   env:
-  #     # Server env vars
-  #     NODE_ENV: test
-  #     JWT_SECRET: testsecret
-  #     POSTGRES_DB: chat-app-db
-  #     POSTGRES_HOST: localhost
-  #     POSTGRES_PORT: 5432
-  #     POSTGRES_USER: postgres
-  #     POSTGRES_PASSWORD: postgres
+    env:
+      # Server env vars
+      NODE_ENV: test
+      JWT_SECRET: testsecret
+      POSTGRES_DB: chat-app-db
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
 
-  #     # Client env vars
-  #     VITE_API_BASE_URL: http://localhost:3000/api
+      # Client env vars
+      VITE_API_BASE_URL: http://localhost:3000/api
 
-  #   services:
-  #     db:
-  #       image: postgres
-  #       env:
-  #         POSTGRES_USER: postgres
-  #         POSTGRES_PASSWORD: postgres
-  #       ports:
-  #         - 5432:5432
+    services:
+      db:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
 
-  #   defaults:
-  #     run:
-  #       working-directory: ./client
+    defaults:
+      run:
+        working-directory: ./client
 
-  #   steps:
-  #     - name: Checkout server
-  #       uses: actions/checkout@v3
-  #       with:
-  #         repository: shaundnz/chat-group-server
-  #         path: server
+    steps:
+      - name: Checkout server
+        uses: actions/checkout@v3
+        with:
+          repository: shaundnz/chat-group-server
+          path: server
 
-  #     - name: Clean install dependencies and build server
-  #       working-directory: ./server
-  #       run: |
-  #         npm ci
-  #         npm run build
+      - name: Clean install dependencies and build server
+        working-directory: ./server
+        run: |
+          npm ci
+          npm run build
 
-  #     - name: Setup database
-  #       working-directory: ./server
-  #       run: npm run database:reset -- TestSeeder
+      - name: Setup database
+        working-directory: ./server
+        run: npm run database:reset -- TestSeeder
 
-  #     - name: Start server
-  #       working-directory: ./server
-  #       run: |
-  #         npm run start:prod &
-  #         sleep 5 &&
-  #         curl http://localhost:3000/api/health-check -I
+      - name: Start server
+        working-directory: ./server
+        run: |
+          npm run start:prod &
+          sleep 5 &&
+          curl http://localhost:3000/api/health-check -I
 
-  #     - name: Checkout client
-  #       uses: actions/checkout@v3
-  #       with:
-  #         path: client
+      - name: Checkout client
+        uses: actions/checkout@v3
+        with:
+          path: client
 
-  #     - name: Clean install dependencies and build client
-  #       run: |
-  #         npm ci
-  #         npm run build
+      - name: Clean install dependencies and build client
+        run: |
+          npm ci
+          npm run build
 
-  #     - name: Run unit tests
-  #       run: npm run test:unit
+      - name: Run unit tests
+        run: npm run test:unit
 
-  #     - name: Run E2E tests
-  #       run: npm run test:integration
+      - name: Run E2E tests
+        run: npm run test:integration
 
-  #     - name: Upload build artifacts
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: build
-  #         path: client/build
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: client/build
 
   deploy:
     name: Deploy
-    # needs: test
+    needs: test
     runs-on: ubuntu-latest
     environment: production
     permissions:
@@ -106,11 +106,11 @@ jobs:
           role-to-assume: arn:aws:iam::758189075923:role/chat-app-client-deploy-app-to-s3
           aws-region: ${{ env.AWS_REGION }}
 
-      # - name: Get build artifacts
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: build
-      #     path: build
+      - name: Get build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+          path: build
 
       - name: Deploy to S3
         uses: reggionick/s3-deploy@v4
