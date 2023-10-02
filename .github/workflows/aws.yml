@@ -51,19 +51,6 @@ jobs:
         working-directory: ./client
 
     steps:
-      - name: Checkout client
-        uses: actions/checkout@v3
-        with:
-          path: client
-
-      - name: Clean install dependencies and build client
-        run: |
-          npm ci
-          npm run build
-
-      - name: Run unit tests
-        run: npm run test:unit
-
       - name: Checkout server
         uses: actions/checkout@v3
         with:
@@ -83,11 +70,25 @@ jobs:
           sleep 5 &&
           curl http://localhost:3000/api/health-check -I
 
+      - name: Checkout client
+        uses: actions/checkout@v3
+        with:
+          path: client
+
+      - name: Clean install dependencies and build client
+        run: |
+          npm ci
+          npm run build
+
+      - name: Run unit tests
+        run: npm run test:unit
+
       - name: Run E2E tests
         run: npm run test:integration
 
   deploy:
     name: Deploy
+    needs: test
     runs-on: ubuntu-latest
     environment: production
 
