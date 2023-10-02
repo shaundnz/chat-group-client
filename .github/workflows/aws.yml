@@ -63,6 +63,10 @@ jobs:
           npm ci
           npm run build
 
+      - name: Setup database
+        working-directory: ./server
+        run: npm run database:reset -- TestSeeder
+
       - name: Start server
         working-directory: ./server
         run: |
