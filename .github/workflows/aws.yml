@@ -112,5 +112,7 @@ jobs:
           folder: build
           bucket: ${{ secrets.S3_BUCKET }}
           bucket-region: ${{ secrets.AWS_REGION }}
+          dist-id: ${{ secrets.AWS_DISTRIBUTION_ID }}
+          invalidation: '/*'
           private: true
           delete-removed: true
