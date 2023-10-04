@@ -40,6 +40,16 @@ jobs:
         working-directory: ./client
 
     steps:
+      - name: Checkout client
+        uses: actions/checkout@v3
+        with:
+          path: client
+
+      - name: Clean install dependencies and build client
+        run: |
+          npm ci
+          npm run build
+
       - name: Checkout server
         uses: actions/checkout@v3
         with:
@@ -62,16 +72,6 @@ jobs:
           npm run start:prod &
           sleep 5 &&
           curl $VITE_API_BASE_URL/health-check -I
-
-      - name: Checkout client
-        uses: actions/checkout@v3
-        with:
-          path: client
-
-      - name: Clean install dependencies and build client
-        run: |
-          npm ci
-          npm run build
 
       - name: Run unit tests
         run: npm run test:unit
