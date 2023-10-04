@@ -89,8 +89,7 @@ jobs:
       contents: read
 
     env:
-      AWS_REGION: ap-southeast-2
-      VITE_API_BASE_URL: '/api'
+      VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
 
     steps:
       - name: Checkout
@@ -104,14 +103,14 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::758189075923:role/chat-app-client-deploy-app-to-s3
-          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Deploy to S3
         uses: reggionick/s3-deploy@v4
         with:
           folder: build
           bucket: ${{ secrets.S3_BUCKET }}
-          bucket-region: ${{ env.AWS_REGION }}
+          bucket-region: ${{ secrets.AWS_REGION }}
           private: true
           delete-removed: true
