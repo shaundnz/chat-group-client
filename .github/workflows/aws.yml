@@ -11,9 +11,10 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    environment: test
 
     env:
-      # Server env vars
+      # Test server env vars
       NODE_ENV: test
       JWT_SECRET: testsecret
       POSTGRES_DB: chat-app-db
@@ -23,14 +24,14 @@ jobs:
       POSTGRES_PASSWORD: postgres
 
       # Client env vars
-      VITE_API_BASE_URL: http://localhost:3000/api
+      VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
 
     services:
       db:
         image: postgres
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
         ports:
           - 5432:5432
 
@@ -60,7 +61,7 @@ jobs:
         run: |
           npm run start:prod &
           sleep 5 &&
-          curl http://localhost:3000/api/health-check -I
+          curl $VITE_API_BASE_URL/health-check -I
 
       - name: Checkout client
         uses: actions/checkout@v3
