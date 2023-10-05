@@ -58,7 +58,7 @@
 							class="tooltip"
 							href="https://shaundnz.com"
 							target="_blank"
-							data-tip="Back to shaundnz.com"
+							data-tip="Go to shaundnz.com"
 						>
 							<HomeIcon class="text-xl" />
 						</a>
