@@ -80,8 +80,8 @@ describe('Sidebar.svelte', () => {
 	it('should fire the logout function', async () => {
 		const logoutSpy = vi.spyOn(AuthContextMethods.prototype, 'logout');
 		userEvent.setup();
-		const { getByRole } = render(Sidebar);
-		const logout = getByRole('button', { name: 'Logout' });
+		const { getByTestId } = render(Sidebar);
+		const logout = getByTestId('logout-button');
 		await userEvent.click(logout);
 		expect(logoutSpy).toHaveBeenCalled();
 	});

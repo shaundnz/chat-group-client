@@ -1,5 +1,7 @@
 <script lang="ts">
 	import type { Channel } from '../../types';
+	import HomeIcon from '~icons/mdi/Home';
+	import GithubIcon from '~icons/mdi/Github';
 	import LogoutIcon from '~icons/mdi/Logout';
 	import Member from './Member.svelte';
 	import SelectedChannel from './SelectedChannel.svelte';
@@ -47,14 +49,41 @@
 					{channels}
 				/>
 			{/if}
-			<div class="p-4 bg-base-300 flex justify-between">
+			<div class="p-4 bg-base-300 flex justify-between items-center">
 				<Member name={$authContext.user?.username} />
-				<button
-					class="btn btn-primary btn-square text-lg"
-					on:click={() => authContext.helper.logout()}
-					><LogoutIcon />
-					<span class="sr-only">Logout</span></button
-				>
+
+				<ul class="menu menu-horizontal p-0 [&>li>*]:px-2">
+					<li>
+						<a
+							class="tooltip"
+							href="https://shaundnz.com"
+							target="_blank"
+							data-tip="Back to shaundnz.com"
+						>
+							<HomeIcon class="text-xl" />
+						</a>
+					</li>
+					<li>
+						<a
+							class="tooltip"
+							href="https://github.com/shaundnz/chat-group-client"
+							data-tip="View source code"
+							target="_blank"
+						>
+							<GithubIcon class="text-xl" />
+						</a>
+					</li>
+					<li>
+						<button
+							on:click={() => authContext.helper.logout()}
+							class="tooltip"
+							data-tip="Logout"
+							data-testid="logout-button"
+						>
+							<LogoutIcon class="text-xl" />
+						</button>
+					</li>
+				</ul>
 			</div>
 		</div>
 	</div>
