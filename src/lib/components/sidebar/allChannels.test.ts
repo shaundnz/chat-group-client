@@ -75,4 +75,66 @@ describe('AllChannels.svelte', () => {
 		await userEvent.click(channelButton);
 		expect(onChannelClick).toHaveBeenCalledWith(channel);
 	});
+
+	it('should filter the channels', async () => {
+		userEvent.setup();
+		const channels = [
+			{
+				id: '1',
+				title: 'Channel one',
+				description: 'Lorem ipsum info here',
+				members: [],
+				messages: []
+			},
+			{
+				id: '2',
+				title: 'Channel two',
+				description: 'Lorem ipsum info here',
+				members: [],
+				messages: []
+			}
+		];
+		const props = {
+			channels,
+			onChannelClick: vi.fn(),
+			onCreateChannelButtonClick: vi.fn()
+		};
+
+		const { getByPlaceholderText, getByTestId, getByText } = render(AllChannels, props);
+		const input = getByPlaceholderText('Search');
+		await userEvent.type(input, 'one');
+		expect(getByText('Channel one')).toBeInTheDocument();
+		expect(within(getByTestId('all-channels-list')).getAllByRole('listitem')).toHaveLength(1);
+	});
+
+	it('should show the no results message', async () => {
+		userEvent.setup();
+		const channels = [
+			{
+				id: '1',
+				title: 'Channel one',
+				description: 'Lorem ipsum info here',
+				members: [],
+				messages: []
+			},
+			{
+				id: '2',
+				title: 'Channel two',
+				description: 'Lorem ipsum info here',
+				members: [],
+				messages: []
+			}
+		];
+		const props = {
+			channels,
+			onChannelClick: vi.fn(),
+			onCreateChannelButtonClick: vi.fn()
+		};
+
+		const { getByPlaceholderText, getByTestId, getByText } = render(AllChannels, props);
+		const input = getByPlaceholderText('Search');
+		await userEvent.type(input, 'three');
+		expect(getByText('No results for "three"')).toBeInTheDocument();
+		expect(within(getByTestId('all-channels-list')).queryAllByRole('listitem')).toHaveLength(0);
+	});
 });

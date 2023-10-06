@@ -16,5 +16,7 @@
 			<span class="text-lg font-semibold" aria-hidden="true">{getChannelAcronym()}</span>
 		</div>
 	</div>
-	<div class="font-semibold text-lg text-left uppercase">{channelName}</div>
+	<div class="font-semibold text-lg text-left uppercase overflow-hidden overflow-ellipsis">
+		{channelName}
+	</div>
 </button>
