@@ -1,4 +1,6 @@
 <script lang="ts">
+	import AcronymAvatar from '../common/AcronymAvatar.svelte';
+
 	export let channelName: string;
 
 	const getChannelAcronym = () => {
@@ -11,11 +13,7 @@
 </script>
 
 <button class="flex space-x-4 items-center hover:bg-neutral-focus rounded w-full" on:click>
-	<div class="avatar placeholder">
-		<div class="w-12 h-12 rounded bg-neutral-focus">
-			<span class="text-lg font-semibold" aria-hidden="true">{getChannelAcronym()}</span>
-		</div>
-	</div>
+	<AcronymAvatar name={channelName} />
 	<div class="font-semibold text-lg text-left uppercase overflow-hidden overflow-ellipsis">
 		{channelName}
 	</div>
