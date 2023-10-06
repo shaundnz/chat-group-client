@@ -39,7 +39,7 @@
 
 	<div class="drawer-side">
 		<label for="sidebar" class="drawer-overlay" />
-		<div class="flex flex-1 flex-col h-screen bg-base-200 w-80 overflow-hidden">
+		<div class="flex flex-1 flex-col h-full bg-base-200 w-80 overflow-hidden">
 			{#if currentChannelView}
 				<SelectedChannel {selectedChannel} {onBackButtonClick} />
 			{:else}

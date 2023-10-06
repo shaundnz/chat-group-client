@@ -30,7 +30,7 @@
 	});
 </script>
 
-<div class="flex flex-col h-screen overflow-hidden">
+<div class="flex flex-1 flex-col overflow-hidden h-screen">
 	<Banner channelName={selectedChannel.title} />
 	<main class="flex flex-1 flex-col space-y-4 overflow-y-scroll px-4">
 		{#each selectedChannel.messages as message}
