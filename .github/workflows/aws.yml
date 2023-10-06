@@ -9,6 +9,7 @@ permissions:
 
 jobs:
   test:
+    name: Validate
     uses: ./.github/workflows/run-tests.yml
 
   deploy:
