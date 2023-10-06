@@ -30,7 +30,7 @@
 </div>
 <ul class="flex flex-col flex-1 space-y-4 overflow-y-auto px-4" data-testid="all-channels-list">
 	{#if filteredChannels.length > 0}
-		{#each filteredChannels as channel}
+		{#each filteredChannels as channel (channel.id)}
 			<li>
 				<Channel channelName={channel.title} on:click={() => onChannelClick(channel)} />
 			</li>
