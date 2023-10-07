@@ -1,5 +1,3 @@
-export interface SendMessageEventResponseDto {
-	channelId: string;
-	createdAt: string;
-	content: string;
-}
+import type { MessageDto } from './MessageDto';
+
+export type SendMessageEventResponseDto = Omit<MessageDto, 'id'>;

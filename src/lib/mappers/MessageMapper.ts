@@ -5,7 +5,10 @@ export class MessageMapper {
 	static DtoToObject(messageDto: MessageDto): Message {
 		return {
 			content: messageDto.content,
-			createdAt: new Date(messageDto.createdAt)
+			createdAt: new Date(messageDto.createdAt),
+			user: {
+				username: messageDto.user.username
+			}
 		};
 	}
 }

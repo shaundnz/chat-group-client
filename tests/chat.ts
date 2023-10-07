@@ -61,16 +61,22 @@ export class ChatPage {
 		await this.page.getByRole('button', { name: 'Send message' }).click();
 	}
 
-	async verifyLastMessage(content: string) {
+	async verifyLastMessage(username: string, content: string) {
 		await expect(this.page.getByTestId('message').last()).toContainText(content);
+		await expect(this.page.getByTestId('message').last()).toContainText(username);
 	}
 
-	async verifyLastNMessages(lastNMessages: string[]) {
+	async verifyLastNMessages(lastNMessages: { username: string; content: string }[]) {
 		const currentChannelMessages = await this.page.getByTestId('message').all();
 		const messagesLen = currentChannelMessages.length;
 		expect(messagesLen).toBeGreaterThanOrEqual(lastNMessages.length);
 		for (let i = 0; i < lastNMessages.length; i++) {
-			await expect(currentChannelMessages[messagesLen - 1 - i]).toContainText(lastNMessages[i]);
+			await expect(currentChannelMessages[messagesLen - 1 - i]).toContainText(
+				lastNMessages[i].username
+			);
+			await expect(currentChannelMessages[messagesLen - 1 - i]).toContainText(
+				lastNMessages[i].content
+			);
 		}
 	}
 

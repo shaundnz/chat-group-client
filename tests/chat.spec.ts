@@ -93,7 +93,7 @@ test('user can create a new channel and automatically navigates to it', async ({
 
 	// Send a message
 	await chatPage.sendMessage('Hello world!');
-	await chatPage.verifyLastNMessages(['Hello world!']);
+	await chatPage.verifyLastMessage(channelsTestUser.username, 'Hello world!');
 });
 
 test('channel messages are persisted', async ({ page }) => {
@@ -104,12 +104,18 @@ test('channel messages are persisted', async ({ page }) => {
 	await chatPage.verifyCurrentlySelectedChannel('Welcome');
 	await chatPage.sendMessage('Message 1');
 	await chatPage.sendMessage('Message 2');
-	await chatPage.verifyLastNMessages(['Message 2', 'Message 1']);
+	await chatPage.verifyLastNMessages([
+		{ username: channelsTestUser.username, content: 'Message 2' },
+		{ username: channelsTestUser.username, content: 'Message 1' }
+	]);
 	await page.reload();
 	await chatPage.waitForPageLoad();
 	await chatPage.waitForPageLoad();
 	await chatPage.verifyCurrentlySelectedChannel('Welcome');
-	await chatPage.verifyLastNMessages(['Message 2', 'Message 1']);
+	await chatPage.verifyLastNMessages([
+		{ username: channelsTestUser.username, content: 'Message 2' },
+		{ username: channelsTestUser.username, content: 'Message 1' }
+	]);
 });
 
 test('user sees a new message from another user', async ({ page }) => {
@@ -138,7 +144,7 @@ test('user sees a new message from another user', async ({ page }) => {
 		content: 'A message from another user'
 	});
 
-	await chatPage.verifyLastMessage('A message from another user');
+	await chatPage.verifyLastMessage(otherChannelsUser.username, 'A message from another user');
 });
 
 test('messages from another user in an unselected channel are visible when selected', async ({
@@ -163,16 +169,19 @@ test('messages from another user in an unselected channel are visible when selec
 	await chatPage.verifyCurrentlySelectedChannel('Welcome');
 
 	await chatPage.sendMessage('Welcome channel message');
-	await chatPage.verifyLastMessage('Welcome channel message');
+	await chatPage.verifyLastMessage(channelsTestUser.username, 'Welcome channel message');
 
 	chatApi.sendMessage(otherChannelsUserSocketClient, {
 		channelId: newChannel.id,
 		content: 'A message from another user in another channel'
 	});
 
-	await chatPage.verifyLastMessage('Welcome channel message');
+	await chatPage.verifyLastMessage(channelsTestUser.username, 'Welcome channel message');
 	await chatPage.goToChannel(newChannel.title);
-	await chatPage.verifyLastMessage('A message from another user in another channel');
+	await chatPage.verifyLastMessage(
+		otherChannelsUser.username,
+		'A message from another user in another channel'
+	);
 });
 
 test('current user sees new channel and joins room when a new channel is created', async ({
@@ -205,5 +214,5 @@ test('current user sees new channel and joins room when a new channel is created
 		content: 'Hello from the new channel'
 	});
 
-	await chatPage.verifyLastMessage('Hello from the new channel');
+	await chatPage.verifyLastMessage(otherChannelsUser.username, 'Hello from the new channel');
 });

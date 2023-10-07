@@ -5,7 +5,6 @@
 	import { onMount } from 'svelte';
 	import AcronymAvatar from '../common/AcronymAvatar.svelte';
 	export let message: MessageType;
-	export let userName: string;
 
 	dayjs.extend(relativeTime);
 
@@ -20,11 +19,11 @@
 </script>
 
 <div class="flex space-x-4" data-testid="message">
-	<AcronymAvatar name={userName} userAvatar />
+	<AcronymAvatar name={message.user.username} userAvatar />
 	<div class="flex flex-col">
 		<div class="flex space-x-2 items-center mb-1">
 			<div class="font-semibold">
-				{userName}
+				{message.user.username}
 			</div>
 			<div class="font-light text-sm">
 				{relativeTimeString}

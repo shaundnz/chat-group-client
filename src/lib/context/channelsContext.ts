@@ -1,6 +1,6 @@
 import { derived, writable, type Readable, type Writable, type Updater } from 'svelte/store';
 import { getContext, setContext } from 'svelte';
-import type { Channel, Message } from '$lib/types';
+import type { Channel, Message, User } from '$lib/types';
 import type {
 	ChannelCreatedEventResponseDto,
 	CreateChannelDto,
@@ -105,12 +105,13 @@ export class ChannelsContextMethods {
 		this.setChannelsLoadingState(false);
 	}
 
-	sendMessage(sendMessageEventRequestDto: SendMessageEventRequestDto) {
+	sendMessage(sendMessageEventRequestDto: SendMessageEventRequestDto, loggedInUser: User) {
 		const socket = getSocket();
 
 		const newMessage: Message = {
 			createdAt: new Date(),
-			content: sendMessageEventRequestDto.content
+			content: sendMessageEventRequestDto.content,
+			user: loggedInUser
 		};
 
 		socket.emit('message:send', sendMessageEventRequestDto);
@@ -135,14 +136,14 @@ export class ChannelsContextMethods {
 		});
 	}
 
-	pushMessageToChannel({ channelId, createdAt, content }: ReceivedMessageEventResponseDto) {
+	pushMessageToChannel({ channelId, createdAt, content, user }: ReceivedMessageEventResponseDto) {
 		this.update((state) => {
 			const channelToUpdate = state.channels.find((channel) => channel.id === channelId);
 			if (!channelToUpdate) {
 				// throw new Error('Could not find channel');
 				return state;
 			}
-			channelToUpdate.messages.push({ createdAt: new Date(createdAt), content });
+			channelToUpdate.messages.push({ createdAt: new Date(createdAt), content, user });
 			return state;
 		});
 	}
