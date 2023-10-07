@@ -1,5 +1,3 @@
-export interface ReceivedMessageEventResponseDto {
-	channelId: string;
-	createdAt: string;
-	content: string;
-}
+import type { MessageDto } from './MessageDto';
+
+export type ReceivedMessageEventResponseDto = Omit<MessageDto, 'id'>;

@@ -7,9 +7,12 @@ describe('Message.svelte', () => {
 	it('should render', () => {
 		const message: MessageType = {
 			content: 'message',
-			createdAt: new Date()
+			createdAt: new Date(),
+			user: {
+				username: 'User One'
+			}
 		};
-		const { getByText } = render(Message, { message, userName: 'User One' });
+		const { getByText } = render(Message, { message });
 		expect(getByText(message.content)).toBeInTheDocument();
 		expect(getByText('User One')).toBeInTheDocument();
 	});

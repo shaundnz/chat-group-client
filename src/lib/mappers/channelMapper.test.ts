@@ -13,19 +13,31 @@ describe('ChannelMapper', () => {
 					id: 'a1bffea7-3e8a-4c04-b0c2-98338094ecc4',
 					channelId: 'd4521ed4-1741-488c-b0b2-fd35803e9f80',
 					createdAt: '2023-08-25T12:46:13.882Z',
-					content: 'Message 1'
+					content: 'Message 1',
+					user: {
+						id: '1',
+						username: 'testUser'
+					}
 				},
 				{
 					id: 'dac49a70-fb59-4c51-8264-c5201ffc3a7d',
 					channelId: 'd4521ed4-1741-488c-b0b2-fd35803e9f80',
 					createdAt: '2023-08-25T23:39:58.598Z',
-					content: 'Hello'
+					content: 'Hello',
+					user: {
+						id: '1',
+						username: 'testUser'
+					}
 				},
 				{
 					id: 'cd7be8dc-865d-451d-a13a-4319d097b7d0',
 					channelId: 'd4521ed4-1741-488c-b0b2-fd35803e9f80',
 					createdAt: '2023-08-26T02:58:16.155Z',
-					content: 'World'
+					content: 'World',
+					user: {
+						id: '1',
+						username: 'testUser'
+					}
 				}
 			]
 		};

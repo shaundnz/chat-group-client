@@ -2,13 +2,16 @@
 	import Banner from './Banner.svelte';
 	import Message from './Message.svelte';
 	import TextInput from './TextInput.svelte';
-	import { getChannelsContext } from '$lib/context';
+	import { getAuthContext, getChannelsContext } from '$lib/context';
 	import { onMount } from 'svelte';
+	import { error } from '@sveltejs/kit';
 
 	let bottomOfChatWindow: HTMLDivElement;
 
 	const channelsContext = getChannelsContext();
+	const authContext = getAuthContext();
 	$: ({ selectedChannelId, selectedChannel } = $channelsContext);
+	$: ({ user } = $authContext);
 
 	const scrollToBottom = () => {
 		if (bottomOfChatWindow) {
@@ -21,7 +24,12 @@
 	$: selectedChannelId, scrollToBottom();
 
 	const onSendClick = (messageContent: string) => {
-		channelsContext.helper.sendMessage({ channelId: selectedChannel.id, content: messageContent });
+		if (!user) throw error(401, 'You must be logged in to send a message');
+
+		channelsContext.helper.sendMessage(
+			{ channelId: selectedChannel.id, content: messageContent },
+			user
+		);
 		scrollToBottom();
 	};
 
@@ -34,7 +42,7 @@
 	<Banner channelName={selectedChannel.title} />
 	<main class="flex flex-1 flex-col space-y-4 overflow-y-scroll px-4">
 		{#each selectedChannel.messages as message}
-			<Message userName="Anonymous User" {message} />
+			<Message {message} />
 		{/each}
 		<div bind:this={bottomOfChatWindow} />
 	</main>
